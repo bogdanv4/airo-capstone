@@ -1,0 +1,25 @@
+.button {
+  border: none;
+  padding: 2.8rem 1.2rem;
+  cursor: pointer;
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  width: 100%;
+}
+
+.button__purple {
+  background-color: var(--color-accent);
+  color: var(--color-primary);
+  font-size: 1.4rem;
+  transition: background-color 0.2s;
+  &:hover {
+    background-color: var(--color-accent-dark);
+  }
+  & > img {
+    width: 2.4rem;
+    height: 2.4rem;
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  },
+  "type": "module",
+  "scripts": {
+    "start": "concurrently \"npm start --workspace backend\" \"npm start --workspace frontend\"",
+    "lint-staged": "lint-staged",
+    "lint": "eslint . && prettier --check .",
+    "prepare": "husky"
+  },
+  "workspaces": [
+    "frontend",
+    "backend"
+  ]
+}

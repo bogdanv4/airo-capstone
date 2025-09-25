@@ -1,0 +1,5 @@
+.logo__text {
+  color: var(--color-font-dark);
+  font-size: 1.2rem;
+  margin-left: 0.6rem;
+}

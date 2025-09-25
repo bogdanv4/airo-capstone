@@ -1,0 +1,73 @@
+.header {
+  background-color: var(--color-background-dark);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--color-font-primary);
+  padding: 1rem 2.6rem 1rem 3rem;
+  height: 6rem;
+}
+
+.header__filters {
+  display: flex;
+  align-items: center;
+}
+
+.header__input {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.6rem 0.8rem 0.6rem 1.5rem;
+  border: 1px solid rgba(from var(--color-font-primary) r g b / 0.25);
+  border-radius: 1.7rem;
+}
+
+#searchInput {
+  background-color: transparent;
+  border: none;
+  outline: none;
+  margin-right: auto;
+  color: #fff;
+  width: 35.7rem;
+
+  &::placeholder {
+    color: rgba(from var(--color-font-primary) r g b / 0.6);
+    font-size: 1.2rem;
+    font-weight: 600;
+    letter-spacing: 0.75px;
+    line-height: 2.4rem;
+  }
+}
+
+.header__personal {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: 17rem;
+}
+
+.notification__button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.person {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-left: 2rem;
+  background-color: transparent;
+  border: none;
+}
+
+.person__name {
+  font-size: 1.6rem;
+  color: var(--color-font-light);
+}
+
+.person__image {
+  height: 4rem;
+  width: 4rem;
+  border-radius: 100%;
+}

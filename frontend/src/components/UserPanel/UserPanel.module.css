@@ -1,0 +1,95 @@
+.panel {
+  font-size: 2rem;
+  color: var(--color-font-primary);
+  background-color: var(--color-background);
+  width: 36rem;
+  height: calc(100vh - 6rem);
+  padding: 0 1.6rem;
+  margin-left: 100%;
+  position: absolute;
+  top: 60px;
+  transform: translate(0);
+  transition: all 0.5s;
+  z-index: 2;
+}
+.openPanel {
+  transform: translate(-100%);
+}
+.panel__user {
+  padding: 2.4rem 0 3.3rem 1.6rem;
+  display: flex;
+  flex-direction: row;
+  gap: 1.5rem;
+}
+.panel__userName {
+  font-size: 2.3rem;
+  font-weight: 600;
+}
+.panel__userMail {
+  font-size: 1.3rem;
+}
+.panel__user img {
+  width: 6rem;
+  border-radius: 100%;
+}
+.panel__text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+}
+.panel__settings {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.panel__centerContent,
+.panel__devices {
+  display: flex;
+  flex-direction: column;
+}
+.panel__devices {
+  gap: 1rem;
+}
+.panel__centerContent {
+  align-items: center;
+  text-align: center;
+  font-size: 1.5rem;
+  margin: 9.5rem auto 0 auto;
+  width: 100%;
+  gap: 3.2rem;
+}
+.panel__centerContent--small {
+  width: 26rem;
+}
+.panel__centerContentImage {
+  width: 14rem;
+}
+.panel__addNewDevice,
+.panel__bottom_button {
+  color: var(--color-font-primary);
+  width: fit-content;
+  margin: 2.5rem auto 0 auto;
+  background-color: transparent;
+  border: none;
+  font-size: 2rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s;
+  &:hover {
+    transform: scale(1.1);
+  }
+}
+.panel__bottom_button {
+  width: 100%;
+  margin-top: 4rem;
+}
+
+.panel__buttons {
+  margin: 7.6rem auto 0 auto;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}

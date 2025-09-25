@@ -1,0 +1,117 @@
+:root {
+  --color-background-dark: rgb(36, 44, 53);
+  --color-background-light: rgb(60, 68, 76);
+  --color-background: rgb(48, 54, 61);
+  --color-accent: rgb(98, 2, 238);
+  --color-accent-dark: rgb(85, 2, 210);
+  --color-font-primary: rgb(255, 255, 255);
+  --color-font-dark: rgb(84, 84, 84);
+  --color-font-light: rgb(196, 196, 196);
+  --color-font-light-2: rgb(106, 106, 106);
+  --normal-font: 'Source Sans 3', sans-serif;
+  --heading-font: 'Fira Sans', sans-serif;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  padding: 0;
+  background-color: transparent;
+}
+
+html {
+  font-size: 62.5%;
+  overflow-x: hidden;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  font-family: var(--normal-font);
+  font-weight: 400;
+}
+
+/* General CSS reset */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    interpolate-size: allow-keywords;
+  }
+}
+
+body {
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+  max-width: 100%;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+
+p {
+  overflow-wrap: break-word;
+  text-wrap: pretty;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  overflow-wrap: break-word;
+  text-wrap: balance;
+}
+
+#root,
+#__next {
+  isolation: isolate;
+}
+
+.leaflet-control-zoom.leaflet-bar {
+  margin-bottom: 10rem !important;
+  margin-right: 4rem !important;
+  border: none !important;
+
+  .leaflet-control-zoom-in,
+  .leaflet-control-zoom-out {
+    background: var(--color-accent);
+    height: 4rem;
+    width: 4rem;
+    line-height: 1;
+    position: relative;
+
+    span {
+      display: inline-block;
+      color: var(--color-font-light);
+      line-height: 1;
+      height: 16px;
+      width: 16px;
+      position: absolute;
+      top: 40%;
+      left: 50%;
+      transform: translate(-50%, -40%);
+    }
+  }
+}
+
+.loading {
+  color: var(--color-font-primary);
+  font-size: 1.4rem;
+}
