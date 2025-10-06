@@ -4,8 +4,8 @@ import {
   login as loginAction,
   logout as logoutAction,
 } from 'src/redux/actions';
-import { USER_INFO_API_URL } from '../constants/const';
-import { useLocalStorage } from './useLocalStorage';
+import { USER_INFO_API_URL } from 'src/constants/const';
+import { useLocalStorage } from 'src/hooks/useLocalStorage';
 
 export function useAuth() {
   const [loading, setLoading] = useState(false);
@@ -22,13 +22,18 @@ export function useAuth() {
           headers: { Authorization: `Bearer ${token}` },
         });
         const userInfo = await response.json();
-        dispatch(loginAction(userInfo, token));
-        setItem(token);
-        setLoading(false);
+
+        if (userInfo && userInfo.picture) {
+          dispatch(loginAction(userInfo, token));
+          setItem(token);
+        } else {
+          throw new Error('Invalid user info received');
+        }
       } catch (error) {
         console.error(error);
         removeItem();
         dispatch(logoutAction());
+      } finally {
         setLoading(false);
       }
     },

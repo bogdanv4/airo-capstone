@@ -20,6 +20,8 @@ export default function Header({ loading }) {
     }
   }
 
+  console.log('User picture:', user?.picture);
+
   return (
     <header className={styles.header}>
       <Logo />
@@ -43,7 +45,7 @@ export default function Header({ loading }) {
           <Icon id="notificationIcon" width="24" height="21" />
         </button>
         <button className={`${styles.person}`} onClick={handleUserPanel}>
-          {signedIn && !loading && (
+          {signedIn && !loading && user?.picture && (
             <>
               <img
                 src={user.picture}
