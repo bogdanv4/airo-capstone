@@ -20,7 +20,6 @@ export function useAuth() {
       const response = await fetch(AUTH_URL);
       const { url } = await response.json();
 
-      // Redirect to Google OAuth
       window.location.href = url;
     } catch (error) {
       console.error('Error initiating login:', error);
