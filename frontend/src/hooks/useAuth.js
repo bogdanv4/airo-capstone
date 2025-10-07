@@ -14,7 +14,6 @@ export function useAuth() {
 
   const { getItem, setItem, removeItem } = useLocalStorage('loginToken');
 
-  // Initiate Google OAuth flow
   const initiateLogin = useCallback(async () => {
     try {
       const response = await fetch(AUTH_URL);
@@ -26,7 +25,6 @@ export function useAuth() {
     }
   }, []);
 
-  // Verify token and fetch user info
   const verifyToken = useCallback(
     async (token) => {
       setLoading(true);
@@ -53,7 +51,6 @@ export function useAuth() {
     [dispatch, removeItem, setItem],
   );
 
-  // Logout
   const logout = useCallback(async () => {
     const token = getItem();
 
@@ -73,7 +70,6 @@ export function useAuth() {
     dispatch(logoutAction());
   }, [getItem, removeItem, dispatch]);
 
-  // Check for stored token on mount
   useEffect(() => {
     const storedToken = getItem();
 
