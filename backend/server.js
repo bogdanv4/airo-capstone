@@ -1,5 +1,10 @@
 import express from 'express';
 import cors from 'cors';
+import dotenv from 'dotenv';
+import { OAuth2Client } from 'google-auth-library';
+
+dotenv.config();
+
 const app = express();
 const PORT = 3000;
 
@@ -10,7 +15,115 @@ const AVAILABLE_TYPES = {
   GATEWAY: 'gateway',
 };
 
-app.use(cors());
+// Google OAuth2 Client
+const oauth2Client = new OAuth2Client(
+  process.env.GOOGLE_CLIENT_ID,
+  process.env.GOOGLE_CLIENT_SECRET,
+  process.env.GOOGLE_REDIRECT_URI,
+);
+
+// Middleware
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL,
+    credentials: true,
+  }),
+);
+app.use(express.json());
+
+// ============ AUTH ROUTES ============
+
+// Generate Google OAuth URL
+app.get('/auth/google/url', (req, res) => {
+  const url = oauth2Client.generateAuthUrl({
+    access_type: 'offline',
+    scope: [
+      'https://www.googleapis.com/auth/userinfo.profile',
+      'https://www.googleapis.com/auth/userinfo.email',
+    ],
+    prompt: 'consent', // Force account selection
+  });
+
+  res.json({ url });
+});
+
+// Handle Google OAuth callback
+app.get('/auth/google/callback', async (req, res) => {
+  const { code } = req.query;
+
+  if (!code) {
+    return res.redirect(`${process.env.FRONTEND_URL}?error=no_code`);
+  }
+
+  try {
+    // Exchange code for tokens
+    const { tokens } = await oauth2Client.getToken(code);
+    oauth2Client.setCredentials(tokens);
+
+    // Redirect to frontend with token
+    const redirectUrl = `${process.env.FRONTEND_URL}?token=${tokens.access_token}`;
+    res.redirect(redirectUrl);
+  } catch (error) {
+    console.error('Error during OAuth callback:', error);
+    res.redirect(`${process.env.FRONTEND_URL}?error=auth_failed`);
+  }
+});
+
+// Verify token and get user info
+app.get('/auth/verify', async (req, res) => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'No token provided' });
+  }
+
+  const token = authHeader.split(' ')[1];
+
+  try {
+    // Fetch user info from Google
+    const userInfoResponse = await fetch(
+      'https://www.googleapis.com/oauth2/v3/userinfo',
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      },
+    );
+
+    if (!userInfoResponse.ok) {
+      return res.status(401).json({ error: 'Invalid token' });
+    }
+
+    const userInfo = await userInfoResponse.json();
+    res.json(userInfo);
+  } catch (error) {
+    console.error('Token verification error:', error);
+    res.status(401).json({ error: 'Invalid or expired token' });
+  }
+});
+
+// Logout - revoke token
+app.post('/auth/logout', async (req, res) => {
+  const { token } = req.body;
+
+  if (!token) {
+    return res.status(400).json({ error: 'No token provided' });
+  }
+
+  try {
+    await fetch(`https://oauth2.googleapis.com/revoke?token=${token}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    });
+
+    res.json({ message: 'Logged out successfully' });
+  } catch (error) {
+    console.error('Logout error:', error);
+    res.status(500).json({ error: 'Logout failed' });
+  }
+});
+
+// ============ EXISTING ROUTES ============
 
 app.get('/devices', (req, res) => {
   const devices = data.filter((item) => item.type === AVAILABLE_TYPES.DEVICE);
