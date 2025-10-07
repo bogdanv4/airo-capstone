@@ -4,7 +4,7 @@ import {
   login as loginAction,
   logout as logoutAction,
 } from 'src/redux/actions';
-import { USER_INFO_API_URL } from '../constants/const';
+import { AUTH_URL, VERIFY_TOKEN_URL, LOGOUT_URL } from 'src/constants/const';
 import { useLocalStorage } from './useLocalStorage';
 
 export function useAuth() {
@@ -14,34 +14,69 @@ export function useAuth() {
 
   const { getItem, setItem, removeItem } = useLocalStorage('loginToken');
 
-  const fetchUserInfo = useCallback(
+  const initiateLogin = useCallback(async () => {
+    try {
+      const response = await fetch(AUTH_URL);
+      const { url } = await response.json();
+
+      window.location.href = url;
+    } catch (error) {
+      console.error('Error initiating login:', error);
+    }
+  }, []);
+
+  const verifyToken = useCallback(
     async (token) => {
       setLoading(true);
       try {
-        const response = await fetch(USER_INFO_API_URL, {
+        const response = await fetch(VERIFY_TOKEN_URL, {
           headers: { Authorization: `Bearer ${token}` },
         });
+
+        if (!response.ok) {
+          throw new Error('Token verification failed');
+        }
+
         const userInfo = await response.json();
         dispatch(loginAction(userInfo, token));
         setItem(token);
-        setLoading(false);
       } catch (error) {
-        console.error(error);
+        console.error('Token verification error:', error);
         removeItem();
         dispatch(logoutAction());
+      } finally {
         setLoading(false);
       }
     },
     [dispatch, removeItem, setItem],
   );
 
+  const logout = useCallback(async () => {
+    const token = getItem();
+
+    if (token) {
+      try {
+        await fetch(LOGOUT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token }),
+        });
+      } catch (error) {
+        console.error('Logout error:', error);
+      }
+    }
+
+    removeItem();
+    dispatch(logoutAction());
+  }, [getItem, removeItem, dispatch]);
+
   useEffect(() => {
     const storedToken = getItem();
 
     if (storedToken && !signedIn) {
-      fetchUserInfo(storedToken);
+      verifyToken(storedToken);
     }
-  }, [signedIn, fetchUserInfo, getItem]);
+  }, [signedIn, verifyToken, getItem]);
 
-  return { loading };
+  return { loading, initiateLogin, logout, verifyToken };
 }

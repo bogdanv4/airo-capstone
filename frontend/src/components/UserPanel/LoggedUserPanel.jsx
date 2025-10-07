@@ -1,12 +1,7 @@
 import { useDispatch, useSelector } from 'react-redux';
-import { googleLogout } from '@react-oauth/google';
 import styles from './userPanel.module.css';
-import {
-  logout as logoutAction,
-  openModal,
-  closeUserPanel,
-} from 'src/redux/actions';
-import { useLocalStorage } from 'src/hooks/useLocalStorage';
+import { openModal, closeUserPanel } from 'src/redux/actions';
+import { useAuth } from 'src/hooks/useAuth';
 import DeviceCard from 'src/components/DeviceCard/DeviceCard';
 import Button from 'src/components/Button/Button';
 
@@ -14,19 +9,12 @@ export default function LoggedUserPanel() {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
   const userPanelOpen = useSelector((state) => state.userPanel.isOpen);
-
-  const { removeItem } = useLocalStorage('loginToken');
-
-  const logout = () => {
-    googleLogout();
-    removeItem();
-    dispatch(logoutAction());
-  };
+  const { logout } = useAuth();
 
   return (
     <div className={`${styles.panel} ${userPanelOpen ? styles.openPanel : ''}`}>
       <div className={styles.panel__user}>
-        <img src={user.picture} alt="Profile" />
+        <img src={user.picture} alt="Profile" key={user.picture} />
         <div className={styles.panel__text}>
           <h2 className={styles.panel__userName}>{user.name}</h2>
           <h3 className={styles.panel__userMail}>{user.email}</h3>
