@@ -15,14 +15,12 @@ const AVAILABLE_TYPES = {
   GATEWAY: 'gateway',
 };
 
-// Google OAuth2 Client
 const oauth2Client = new OAuth2Client(
   process.env.GOOGLE_CLIENT_ID,
   process.env.GOOGLE_CLIENT_SECRET,
   process.env.GOOGLE_REDIRECT_URI,
 );
 
-// Middleware
 app.use(
   cors({
     origin: process.env.FRONTEND_URL,
@@ -33,7 +31,6 @@ app.use(express.json());
 
 // ============ AUTH ROUTES ============
 
-// Generate Google OAuth URL
 app.get('/auth/google/url', (req, res) => {
   const url = oauth2Client.generateAuthUrl({
     access_type: 'offline',
@@ -41,13 +38,12 @@ app.get('/auth/google/url', (req, res) => {
       'https://www.googleapis.com/auth/userinfo.profile',
       'https://www.googleapis.com/auth/userinfo.email',
     ],
-    prompt: 'consent', // Force account selection
+    prompt: 'consent',
   });
 
   res.json({ url });
 });
 
-// Handle Google OAuth callback
 app.get('/auth/google/callback', async (req, res) => {
   const { code } = req.query;
 
@@ -56,11 +52,9 @@ app.get('/auth/google/callback', async (req, res) => {
   }
 
   try {
-    // Exchange code for tokens
     const { tokens } = await oauth2Client.getToken(code);
     oauth2Client.setCredentials(tokens);
 
-    // Redirect to frontend with token
     const redirectUrl = `${process.env.FRONTEND_URL}?token=${tokens.access_token}`;
     res.redirect(redirectUrl);
   } catch (error) {
@@ -69,7 +63,6 @@ app.get('/auth/google/callback', async (req, res) => {
   }
 });
 
-// Verify token and get user info
 app.get('/auth/verify', async (req, res) => {
   const authHeader = req.headers.authorization;
 
@@ -80,7 +73,6 @@ app.get('/auth/verify', async (req, res) => {
   const token = authHeader.split(' ')[1];
 
   try {
-    // Fetch user info from Google
     const userInfoResponse = await fetch(
       'https://www.googleapis.com/oauth2/v3/userinfo',
       {
@@ -100,7 +92,6 @@ app.get('/auth/verify', async (req, res) => {
   }
 });
 
-// Logout - revoke token
 app.post('/auth/logout', async (req, res) => {
   const { token } = req.body;
 
