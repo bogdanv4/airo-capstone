@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   login as loginAction,
@@ -9,6 +9,7 @@ import { useLocalStorage } from './useLocalStorage';
 
 export function useAuth() {
   const [loading, setLoading] = useState(false);
+  const hasCheckedToken = useRef(false);
   const dispatch = useDispatch();
   const signedIn = useSelector((state) => state.auth.signedIn);
 
@@ -71,12 +72,16 @@ export function useAuth() {
   }, [getItem, removeItem, dispatch]);
 
   useEffect(() => {
-    const storedToken = getItem();
+    if (!hasCheckedToken.current && !signedIn) {
+      const storedToken = getItem();
 
-    if (storedToken && !signedIn) {
-      verifyToken(storedToken);
+      if (storedToken) {
+        verifyToken(storedToken);
+      }
+
+      hasCheckedToken.current = true;
     }
-  }, [signedIn, verifyToken, getItem]);
+  }, [getItem, verifyToken, signedIn]);
 
   return { loading, initiateLogin, logout, verifyToken };
 }
