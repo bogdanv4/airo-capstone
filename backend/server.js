@@ -85,6 +85,12 @@ app.get('/auth/verify', async (req, res) => {
     }
 
     const userInfo = await userInfoResponse.json();
+
+    if (userInfo.picture) {
+      const baseUrl = userInfo.picture.split('=')[0];
+      userInfo.picture = `${baseUrl}=s400-c`;
+    }
+
     res.json(userInfo);
   } catch (error) {
     console.error('Token verification error:', error);
