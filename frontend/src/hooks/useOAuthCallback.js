@@ -1,10 +1,15 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useAuth } from './useAuth';
 
 export function useOAuthCallback() {
   const { verifyToken } = useAuth();
+  const hasProcessed = useRef(false);
 
   useEffect(() => {
+    if (hasProcessed.current) {
+      return;
+    }
+
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get('token');
     const error = urlParams.get('error');
@@ -16,8 +21,8 @@ export function useOAuthCallback() {
     }
 
     if (token) {
+      hasProcessed.current = true;
       verifyToken(token);
-      // Clean up URL
       window.history.replaceState({}, document.title, window.location.pathname);
     }
   }, [verifyToken]);
