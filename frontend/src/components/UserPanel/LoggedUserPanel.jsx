@@ -1,7 +1,9 @@
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styles from './userPanel.module.css';
 import { openModal, closeUserPanel } from 'src/redux/actions';
 import { useAuth } from 'src/hooks/useAuth';
+import { useBatchGeocode } from 'src/hooks/useGeocoding';
 import DeviceCard from 'src/components/DeviceCard/DeviceCard';
 import Button from 'src/components/Button/Button';
 
@@ -10,6 +12,51 @@ export default function LoggedUserPanel() {
   const user = useSelector((state) => state.auth.user);
   const userPanelOpen = useSelector((state) => state.userPanel.isOpen);
   const { logout } = useAuth();
+
+  const [devices, setDevices] = useState([]);
+  const [gateways, setGateways] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchUserDevices = async () => {
+      if (!user?.sub) return;
+
+      try {
+        setLoading(true);
+
+        const [devicesRes, gatewaysRes] = await Promise.all([
+          fetch(`http://localhost:3000/devices/${user.sub}`),
+          fetch(`http://localhost:3000/gateways/${user.sub}`),
+        ]);
+
+        if (!devicesRes.ok || !gatewaysRes.ok) {
+          throw new Error('Failed to fetch data');
+        }
+
+        const devicesData = await devicesRes.json();
+        const gatewaysData = await gatewaysRes.json();
+
+        setDevices(devicesData);
+        setGateways(gatewaysData);
+      } catch (err) {
+        console.error('Error fetching devices:', err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserDevices();
+  }, [user?.sub]);
+
+  const allLocations = [
+    ...gateways.map((gateway) => gateway.location),
+    ...devices.map((device) => device.location),
+  ].filter(Boolean);
+
+  const { getAddress, loading: geocodingLoading } =
+    useBatchGeocode(allLocations);
 
   return (
     <div className={`${styles.panel} ${userPanelOpen ? styles.openPanel : ''}`}>
@@ -22,24 +69,51 @@ export default function LoggedUserPanel() {
       </div>
 
       <div className={styles.panel__devices}>
-        <DeviceCard
-          heading="Gateway 1"
-          address="CA, Venice, 31st treet, 4"
-          icon={{
-            id: 'antennaIcon',
-            width: '32',
-            height: '32',
-          }}
-        />
-        <DeviceCard
-          heading="Device 2"
-          address="CA, Sunnyvale, 42st treet, 51"
-          icon={{
-            id: 'routerIcon',
-            width: '32',
-            height: '32',
-          }}
-        />
+        {loading && <p>Loading devices...</p>}
+        {error && <p>Error: {error}</p>}
+
+        {!loading && !error && (
+          <>
+            {gateways.map((gateway) => (
+              <DeviceCard
+                key={gateway.id}
+                heading={gateway.name}
+                address={
+                  geocodingLoading
+                    ? 'Loading address...'
+                    : getAddress(gateway.location.lat, gateway.location.lng)
+                }
+                icon={{
+                  id: 'antennaIcon',
+                  width: '32',
+                  height: '32',
+                }}
+              />
+            ))}
+
+            {devices.map((device) => (
+              <DeviceCard
+                key={device.id}
+                heading={device.name}
+                address={
+                  geocodingLoading
+                    ? 'Loading address...'
+                    : getAddress(device.location.lat, device.location.lng)
+                }
+                icon={{
+                  id: 'routerIcon',
+                  width: '32',
+                  height: '32',
+                }}
+              />
+            ))}
+
+            {devices.length === 0 && gateways.length === 0 && (
+              <p>No devices or gateways found</p>
+            )}
+          </>
+        )}
+
         <button
           className={styles.panel__addNewDevice}
           onClick={() => {

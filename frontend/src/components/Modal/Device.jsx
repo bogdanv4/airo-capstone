@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import styles from './modal.module.css';
-import { CORDS_TO_LOCATION_BASE_URL } from 'src/constants/const';
+import { getCurrentLocationAddress } from 'src/utility/geocoding';
 import Button from 'src/components/Button/Button';
 import Icon from 'src/components/Icon/Icon';
 
@@ -9,33 +9,13 @@ export default function Device() {
   const [dataFormat, setDataFormat] = useState('json');
 
   async function handleLocation() {
-    if (!navigator.geolocation) {
-      alert('Geolocation is not supported by your browser');
-      return;
+    try {
+      const { address } = await getCurrentLocationAddress('sr-Latn');
+      setLocation(address);
+    } catch (err) {
+      console.error(err);
+      alert(err.message || 'Unable to get location');
     }
-
-    navigator.geolocation.getCurrentPosition(
-      async ({ coords }) => {
-        try {
-          const res = await fetch(
-            `${CORDS_TO_LOCATION_BASE_URL}?lat=${coords.latitude}&lon=${coords.longitude}&format=json&accept-language=sr-Latn`,
-          );
-          const data = await res.json();
-          const { road, house_number } = data.address || {};
-
-          const shortAddress = [road, house_number].filter(Boolean).join(' ');
-          setLocation(
-            shortAddress || `${coords.latitude}, ${coords.longitude}`,
-          );
-        } catch (err) {
-          console.error(err);
-        }
-      },
-      (err) => {
-        console.error(err);
-        alert('Unable to get location');
-      },
-    );
   }
 
   return (
