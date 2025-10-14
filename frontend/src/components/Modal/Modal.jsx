@@ -17,7 +17,9 @@ export default function Modal() {
 
   useEffect(() => {
     const dialog = dialogRef.current;
-    if (!dialog) return;
+    if (!dialog) {
+      return;
+    }
 
     if (isOpen && !dialog.open) {
       dialog.showModal();

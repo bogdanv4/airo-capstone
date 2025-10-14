@@ -64,12 +64,14 @@ export default function Map() {
     getUserLocation();
   }, []);
 
-  if (!latitude || !longitude) return null;
+  if (!latitude || !longitude) {
+    return null;
+  }
 
   return (
     <MapContainer
       center={[latitude, longitude]}
-      zoom={14}
+      zoom={15}
       scrollWheelZoom={true}
       zoomControl={false}
       className={styles.mapContainer}
