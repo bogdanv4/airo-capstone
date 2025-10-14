@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import styles from './userPanel.module.css';
 import { openModal, closeUserPanel } from 'src/redux/actions';
 import { useAuth } from 'src/hooks/useAuth';
-import { useBatchGeocode } from 'src/hooks/useGeocoding';
+import { useBatchGeocode } from 'src/hooks/useBatchGeocode';
 import DeviceCard from 'src/components/DeviceCard/DeviceCard';
 import Button from 'src/components/Button/Button';
 
@@ -20,7 +20,9 @@ export default function LoggedUserPanel() {
 
   useEffect(() => {
     const fetchUserDevices = async () => {
-      if (!user?.sub) return;
+      if (!user?.sub) {
+        return;
+      }
 
       try {
         setLoading(true);
