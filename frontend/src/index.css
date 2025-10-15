@@ -111,6 +111,15 @@ h6 {
   }
 }
 
+.leaflet-popup-content-wrapper {
+  background: var(--color-background-light) !important;
+  border-radius: 4px !important;
+}
+
+.leaflet-popup-tip-container {
+  display: none;
+}
+
 .loading {
   color: var(--color-font-primary);
   font-size: 1.4rem;

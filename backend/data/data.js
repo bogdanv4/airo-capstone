@@ -15,6 +15,7 @@ export const data = [
       co2: 695.5,
       temp: 13,
     },
+    airQuality: 'green',
   },
   {
     id: '2',
@@ -26,6 +27,7 @@ export const data = [
       lat: 44.8189,
       lng: 20.4645,
     },
+    airQuality: 'yellow',
   },
   {
     id: '3',
@@ -43,6 +45,25 @@ export const data = [
       co2: 685.2,
       temp: 17.8,
     },
+    airQuality: 'red',
+  },
+  {
+    id: '4',
+    userId: 'xxx',
+    type: 'device',
+    name: 'Device 2',
+    description: 'Kalemegdan air monitor',
+    gatewayID: 'g1',
+    location: {
+      lat: 44.8231,
+      lng: 20.4508,
+    },
+    metrics: {
+      pm2_5: 12.7,
+      co2: 685.2,
+      temp: 17.8,
+    },
+    airQuality: 'red',
   },
 ];
 

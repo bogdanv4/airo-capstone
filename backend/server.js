@@ -122,6 +122,10 @@ app.post('/auth/logout', async (req, res) => {
 
 // ============ EXISTING ROUTES ============
 
+app.get('/all', (req, res) => {
+  res.status(200).json(data);
+});
+
 app.get('/devices', (req, res) => {
   const devices = data.filter((item) => item.type === AVAILABLE_TYPES.DEVICE);
   res.status(200).json(devices);
@@ -130,6 +134,12 @@ app.get('/devices', (req, res) => {
 app.get('/gateways', (req, res) => {
   const gateways = data.filter((item) => item.type === AVAILABLE_TYPES.GATEWAY);
   res.status(200).json(gateways);
+});
+
+app.get('/all/:userId', (req, res) => {
+  const userId = req.params.userId;
+  const usersDevicesAndGateways = data.filter((item) => item.userId === userId);
+  res.status(200).json(usersDevicesAndGateways);
 });
 
 app.get('/devices/:userId', (req, res) => {
