@@ -7,6 +7,7 @@ import MapTiler from './MapTiler';
 import greenIcon from 'src/assets/icons/greenMapIcon';
 import yellowIcon from 'src/assets/icons/yellowMapIcon';
 import redIcon from 'src/assets/icons/redMapIcon';
+import { useBatchGeocode } from 'src/hooks/useBatchGeocode';
 
 const iconsMap = {
   green: greenIcon,
@@ -14,41 +15,22 @@ const iconsMap = {
   red: redIcon,
 };
 
-const mockDevices = [
-  //this is mock array, it will be removed once backend is ready
-  {
-    name: 'gateway1',
-    lat: 44.81085285893795,
-    long: 20.46839483683915,
-    address: 'Crkva Svetog Marka',
-    airQuality: 'green',
-  },
-  {
-    name: 'device1',
-    lat: 44.81080905458476,
-    long: 20.465180047350923,
-    address: 'Pionirski Park',
-    airQuality: 'yellow',
-  },
-  {
-    name: 'device2',
-    lat: 44.80729992989841,
-    long: 20.465848508449785,
-    address: 'Pored negde',
-    airQuality: 'red',
-  },
-];
-
 export default function Map() {
   const signedIn = useSelector((state) => state.auth.signedIn);
+  const user = useSelector((state) => state.auth.user);
 
   const [{ latitude, longitude }, setCords] = useState({});
+  const [allDevices, setAllDevices] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
   const getUserLocation = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
           setCords({ latitude, longitude });
+          // setCords({ latitude: 44.8176, longitude: 20.4569 });
         },
         (error) => {
           console.error(error);
@@ -57,8 +39,42 @@ export default function Map() {
       );
     } else {
       console.error('Geolocation is not supported by this browser.');
+      setCords({ latitude: 44.8176, longitude: 20.4569 });
     }
   };
+
+  useEffect(() => {
+    const fetchAllDevices = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('http://localhost:3000/all');
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch devices');
+        }
+
+        const data = await response.json();
+        setAllDevices(data);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching devices:', err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (signedIn) {
+      fetchAllDevices();
+    }
+  }, [signedIn]);
+
+  const deviceLocations = allDevices
+    .filter((device) => device.location)
+    .map((device) => device.location);
+
+  const { getAddress, loading: geocodingLoading } =
+    useBatchGeocode(deviceLocations);
 
   useEffect(() => {
     getUserLocation();
@@ -67,6 +83,11 @@ export default function Map() {
   if (!latitude || !longitude) {
     return null;
   }
+
+  const devicesToShow =
+    signedIn && user?.sub
+      ? allDevices.filter((device) => device.userId === user.sub)
+      : allDevices;
 
   return (
     <MapContainer
@@ -82,16 +103,69 @@ export default function Map() {
       <Marker position={[latitude, longitude]}>
         <Popup>You are here.</Popup>
       </Marker>
+
       {signedIn &&
-        mockDevices.map((current) => (
-          <Marker
-            key={current.name}
-            position={[current.lat, current.long]}
-            icon={iconsMap[current.airQuality]}
-          >
-            <Popup>{current.address}</Popup>
-          </Marker>
-        ))}
+        !loading &&
+        !error &&
+        devicesToShow.map((device) => {
+          if (!device.location) return null;
+
+          const address = geocodingLoading
+            ? 'Loading address...'
+            : getAddress(device.location.lat, device.location.lng);
+
+          const airQuality = device.airQuality || 'green';
+
+          return (
+            <Marker
+              key={device.id}
+              position={[device.location.lat, device.location.lng]}
+              icon={iconsMap[airQuality]}
+            >
+              <Popup>
+                <div className={styles.popupContent}>
+                  <strong>{device.name}</strong>
+                  <br />
+                  <span style={{ fontSize: '0.9em', color: '#666' }}>
+                    {device.type === 'gateway' ? '📡 Gateway' : '📟 Device'}
+                  </span>
+                  <br />
+                  {device.description && (
+                    <>
+                      <span style={{ fontSize: '0.85em' }}>
+                        {device.description}
+                      </span>
+                      <br />
+                    </>
+                  )}
+                  <span style={{ fontSize: '0.85em' }}>{address}</span>
+                  {device.metrics && (
+                    <>
+                      <br />
+                      <div style={{ marginTop: '8px', fontSize: '0.85em' }}>
+                        <div>🌡️ {device.metrics.temp}°C</div>
+                        <div>💨 PM2.5: {device.metrics.pm2_5} μg/m³</div>
+                        <div>🫧 CO₂: {device.metrics.co2} ppm</div>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </Popup>
+            </Marker>
+          );
+        })}
+
+      {signedIn && loading && (
+        <div className={styles.mapOverlay}>
+          <p>Loading devices...</p>
+        </div>
+      )}
+
+      {signedIn && error && (
+        <div className={styles.mapOverlay}>
+          <p>Error loading devices: {error}</p>
+        </div>
+      )}
     </MapContainer>
   );
 }
