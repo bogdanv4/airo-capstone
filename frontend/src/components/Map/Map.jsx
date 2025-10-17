@@ -4,6 +4,7 @@ import { MapContainer, Marker, Popup, ZoomControl } from 'react-leaflet';
 import styles from './map.module.css';
 import CenterButton from 'src/components/CenterButton/CenterButton';
 import MapTiler from './MapTiler';
+import DevicePopup from './DevicePopup';
 import greenIcon from 'src/assets/icons/greenMapIcon';
 import yellowIcon from 'src/assets/icons/yellowMapIcon';
 import redIcon from 'src/assets/icons/redMapIcon';
@@ -108,12 +109,11 @@ export default function Map() {
         !loading &&
         !error &&
         devicesToShow.map((device) => {
-          if (!device.location) return null;
+          if (!device.location) {
+            return null;
+          }
 
-          const address = geocodingLoading
-            ? 'Loading address...'
-            : getAddress(device.location.lat, device.location.lng);
-
+          const address = getAddress(device.location.lat, device.location.lng);
           const airQuality = device.airQuality || 'green';
 
           return (
@@ -123,33 +123,11 @@ export default function Map() {
               icon={iconsMap[airQuality]}
             >
               <Popup>
-                <div className={styles.popupContent}>
-                  <strong>{device.name}</strong>
-                  <br />
-                  <span style={{ fontSize: '0.9em', color: '#666' }}>
-                    {device.type === 'gateway' ? '📡 Gateway' : '📟 Device'}
-                  </span>
-                  <br />
-                  {device.description && (
-                    <>
-                      <span style={{ fontSize: '0.85em' }}>
-                        {device.description}
-                      </span>
-                      <br />
-                    </>
-                  )}
-                  <span style={{ fontSize: '0.85em' }}>{address}</span>
-                  {device.metrics && (
-                    <>
-                      <br />
-                      <div style={{ marginTop: '8px', fontSize: '0.85em' }}>
-                        <div>🌡️ {device.metrics.temp}°C</div>
-                        <div>💨 PM2.5: {device.metrics.pm2_5} μg/m³</div>
-                        <div>🫧 CO₂: {device.metrics.co2} ppm</div>
-                      </div>
-                    </>
-                  )}
-                </div>
+                <DevicePopup
+                  device={device}
+                  address={address}
+                  isLoading={geocodingLoading}
+                />
               </Popup>
             </Marker>
           );
