@@ -27,6 +27,11 @@ export const data = [
       lat: 44.8189,
       lng: 20.4645,
     },
+    metrics: {
+      pm2_5: 12.7,
+      co2: 685.2,
+      temp: 17.8,
+    },
     airQuality: 'yellow',
   },
   {
@@ -41,7 +46,7 @@ export const data = [
       lng: 20.4508,
     },
     metrics: {
-      pm2_5: 12.7,
+      pm2_5: 35.4,
       co2: 685.2,
       temp: 17.8,
     },

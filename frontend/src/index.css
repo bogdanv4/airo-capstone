@@ -120,6 +120,15 @@ h6 {
   display: none;
 }
 
+.leaflet-popup-content {
+  width: auto !important;
+  margin: 0 !important;
+}
+
+.leaflet-popup-content p {
+  margin: 0 !important;
+}
+
 .loading {
   color: var(--color-font-primary);
   font-size: 1.4rem;

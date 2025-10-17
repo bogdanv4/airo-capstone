@@ -23,7 +23,6 @@
 }
 
 .popupContent {
-  margin: 20px; /* Test, delete when pushing */
   background-color: var(--color-background-light);
   width: 32rem;
   padding: 2.3rem 1.7rem;
@@ -121,8 +120,8 @@
   z-index: -1;
 }
 
-.metric__title,
-.metric__number {
+p.metric__title,
+p.metric__number {
   font-weight: 400;
   letter-spacing: 0.15px;
   vertical-align: middle;
@@ -138,4 +137,42 @@
 .metric__number {
   font-size: 1.4rem;
   line-height: 2.4rem;
+}
+
+.circle-green {
+  filter: brightness(0) saturate(100%) invert(64%) sepia(98%) saturate(451%)
+    hue-rotate(74deg) brightness(91%) contrast(87%);
+}
+
+.circle-yellow {
+  filter: brightness(0) saturate(100%) invert(80%) sepia(58%) saturate(498%)
+    hue-rotate(359deg) brightness(102%) contrast(101%);
+}
+
+.circle-red {
+  filter: brightness(0) saturate(100%) invert(27%) sepia(98%) saturate(7497%)
+    hue-rotate(357deg) brightness(93%) contrast(118%);
+}
+
+.gatewayInfo {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #e0e0e0;
+  text-align: center;
+}
+
+.gatewayLabel {
+  margin: 0;
+  font-size: 0.85em;
+  color: #666;
+  font-weight: 500;
+}
+
+.polutionIconWrapper {
+  position: relative;
+  transition: transform 0.2s ease;
+}
+
+.polutionIconWrapper:hover {
+  transform: scale(1.05);
 }

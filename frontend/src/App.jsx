@@ -16,8 +16,8 @@ function App() {
       <Header loading={loading} />
       <UserPanel loading={loading} />
 
-      {/* <Map /> */}
-      <DevicePopup />
+      <Map />
+      {/* <DevicePopup /> */}
       <Modal />
     </>
   );
