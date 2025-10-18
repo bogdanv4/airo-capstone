@@ -120,6 +120,18 @@
   z-index: -1;
 }
 
+.metric-green::before {
+  background: linear-gradient(#acf254, #20944e);
+}
+
+.metric-yellow::before {
+  background: linear-gradient(#ffeb3b, #ff9800);
+}
+
+.metric-red::before {
+  background: linear-gradient(#ff5252, #d32f2f);
+}
+
 p.metric__title,
 p.metric__number {
   font-weight: 400;
