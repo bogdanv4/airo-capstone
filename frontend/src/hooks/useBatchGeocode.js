@@ -20,7 +20,9 @@ export function useBatchGeocode(locations = [], language = 'sr-Latn') {
         const newAddresses = new Map();
 
         for (const location of locations) {
-          if (!isMounted) break;
+          if (!isMounted) {
+            break;
+          }
 
           const key = `${location.lat},${location.lng}`;
 
