@@ -87,7 +87,7 @@ export default function LoggedUserPanel() {
                 }
                 icon={{
                   id: 'antennaIcon',
-                  width: '32',
+                  width: '28.13',
                   height: '32',
                 }}
               />

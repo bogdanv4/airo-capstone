@@ -11,7 +11,7 @@
   box-shadow: 0px 10px 20px 0px var(--color-primary-light);
 }
 .deviceCard__icon {
-  width: 30%;
+  margin-right: 2rem;
   position: relative;
 }
 .deviceCard__circle {
@@ -23,8 +23,10 @@
 .deviceCard__icon > svg {
   position: absolute;
   display: inline-block;
+  margin-left: 1px;
   top: 50%;
-  transform: translate(85%, -50%);
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 .deviceCard__text {
   display: flex;
