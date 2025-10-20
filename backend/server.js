@@ -3,6 +3,12 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { OAuth2Client } from 'google-auth-library';
 
+const calculateAirQuality = (pm2_5) => {
+  if (pm2_5 <= 12) return 'green';
+  if (pm2_5 <= 35.4) return 'yellow';
+  return 'red';
+};
+
 dotenv.config();
 
 const app = express();
@@ -165,6 +171,10 @@ app.post('/device', (req, res) => {
     return res.status(400).json({ error: 'Missing required fields!' });
   }
 
+  if (!location.lat || !location.lng) {
+    return res.status(400).json({ error: 'Invalid location format!' });
+  }
+
   let customId = freeId.length ? freeId.shift() : (data.length + 1).toString();
 
   const newDevice = {
@@ -173,9 +183,13 @@ app.post('/device', (req, res) => {
     type: AVAILABLE_TYPES.DEVICE,
     name,
     description,
-    gatewayID,
-    location,
-    metrics,
+    gatewayID: gatewayID || null,
+    location: {
+      lat: parseFloat(location.lat),
+      lng: parseFloat(location.lng),
+    },
+    metrics: metrics || {},
+    airQuality: metrics?.pm2_5 ? calculateAirQuality(metrics.pm2_5) : 'green',
   };
 
   data.push(newDevice);
@@ -191,6 +205,10 @@ app.post('/gateway', (req, res) => {
     return res.status(400).json({ error: 'Missing required fields!' });
   }
 
+  if (!location.lat || !location.lng) {
+    return res.status(400).json({ error: 'Invalid location format!' });
+  }
+
   let customId = freeId.length ? freeId.shift() : (data.length + 1).toString();
 
   const newGateway = {
@@ -199,7 +217,12 @@ app.post('/gateway', (req, res) => {
     type: AVAILABLE_TYPES.GATEWAY,
     name,
     key,
-    location,
+    location: {
+      lat: parseFloat(location.lat),
+      lng: parseFloat(location.lng),
+    },
+    metrics: {},
+    airQuality: 'green',
   };
 
   data.push(newGateway);
