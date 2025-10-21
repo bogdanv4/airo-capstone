@@ -1,34 +1,3 @@
-// import styles from './modal.module.css';
-
-// export default function Gateway() {
-//   return (
-//     <form className={styles.modal__form}>
-//       <div
-//         className={`${styles.modal__column} ${styles['modal__column--full']}`}
-//       >
-//         <div className={styles.modal__field}>
-//           <label htmlFor="name">Gateway's name</label>
-//           <input
-//             className={styles.modal__input}
-//             type="text"
-//             name="name"
-//             id="name"
-//           />
-//         </div>
-//         <div className={styles.modal__field}>
-//           <label htmlFor="key">Key</label>
-//           <textarea
-//             className={styles.modal__input}
-//             name="key"
-//             id="key"
-//             placeholder="Type key"
-//           ></textarea>
-//         </div>
-//       </div>
-//     </form>
-//   );
-// }
-
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
 import styles from './modal.module.css';
@@ -51,7 +20,7 @@ export default function Gateway({ onSubmit }) {
       setLoading(true);
       const result = await getCurrentLocationAddress('sr-Latn');
       setLocation(result.address);
-      setCoordinates(result.coords); // Use result.coords instead of result.lat/lng
+      setCoordinates(result.coords);
     } catch (err) {
       console.error(err);
       alert(err.message || 'Unable to get location');

@@ -1,14 +1,15 @@
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { useEffect, useState } from 'react';
 import { MapContainer, Marker, Popup, ZoomControl } from 'react-leaflet';
 import styles from './map.module.css';
+import { useBatchGeocode } from 'src/hooks/useBatchGeocode';
+import { fetchUserData } from 'src/redux/actions';
 import CenterButton from 'src/components/CenterButton/CenterButton';
 import MapTiler from './MapTiler';
 import DevicePopup from './DevicePopup';
 import greenIcon from 'src/assets/icons/greenMapIcon';
 import yellowIcon from 'src/assets/icons/yellowMapIcon';
 import redIcon from 'src/assets/icons/redMapIcon';
-import { useBatchGeocode } from 'src/hooks/useBatchGeocode';
 
 const iconsMap = {
   green: greenIcon,
@@ -17,13 +18,14 @@ const iconsMap = {
 };
 
 export default function Map() {
+  const dispatch = useDispatch();
   const signedIn = useSelector((state) => state.auth.signedIn);
   const user = useSelector((state) => state.auth.user);
+  const { devices, gateways, loading, error } = useSelector(
+    (state) => state.data,
+  );
 
   const [{ latitude, longitude }, setCords] = useState({});
-  const [allDevices, setAllDevices] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
 
   const getUserLocation = () => {
     if (navigator.geolocation) {
@@ -31,7 +33,6 @@ export default function Map() {
         (position) => {
           const { latitude, longitude } = position.coords;
           setCords({ latitude, longitude });
-          // setCords({ latitude: 44.8176, longitude: 20.4569 });
         },
         (error) => {
           console.error(error);
@@ -45,30 +46,16 @@ export default function Map() {
   };
 
   useEffect(() => {
-    const fetchAllDevices = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch('http://localhost:3000/all');
+    getUserLocation();
+  }, []);
 
-        if (!response.ok) {
-          throw new Error('Failed to fetch devices');
-        }
-
-        const data = await response.json();
-        setAllDevices(data);
-        setError(null);
-      } catch (err) {
-        console.error('Error fetching devices:', err);
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (signedIn) {
-      fetchAllDevices();
+  useEffect(() => {
+    if (signedIn && user?.sub) {
+      dispatch(fetchUserData(user.sub));
     }
-  }, [signedIn]);
+  }, [dispatch, signedIn, user?.sub]);
+
+  const allDevices = [...devices, ...gateways];
 
   const deviceLocations = allDevices
     .filter((device) => device.location)
@@ -76,10 +63,6 @@ export default function Map() {
 
   const { getAddress, loading: geocodingLoading } =
     useBatchGeocode(deviceLocations);
-
-  useEffect(() => {
-    getUserLocation();
-  }, []);
 
   if (!latitude || !longitude) {
     return null;
