@@ -1,32 +1,19 @@
+import dotenv from 'dotenv';
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
-import { OAuth2Client } from 'google-auth-library';
-
-const calculateAirQuality = (pm2_5) => {
-  if (pm2_5 <= 12) return 'green';
-  if (pm2_5 <= 35.4) return 'yellow';
-  return 'red';
-};
+import connectDB from './config/database.js';
+import authRoutes from './routes/auth.routes.js';
+import deviceRoutes from './routes/device.routes.js';
 
 dotenv.config();
 
 const app = express();
 const PORT = 3000;
 
-import { data, freeId } from './data/data.js';
+// Connect to database
+connectDB();
 
-const AVAILABLE_TYPES = {
-  DEVICE: 'device',
-  GATEWAY: 'gateway',
-};
-
-const oauth2Client = new OAuth2Client(
-  process.env.GOOGLE_CLIENT_ID,
-  process.env.GOOGLE_CLIENT_SECRET,
-  process.env.GOOGLE_REDIRECT_URI,
-);
-
+// Middleware
 app.use(
   cors({
     origin: process.env.FRONTEND_URL,
@@ -35,201 +22,24 @@ app.use(
 );
 app.use(express.json());
 
-// ============ AUTH ROUTES ============
+// Routes
+app.use('/auth', authRoutes);
+app.use('/', deviceRoutes);
 
-app.get('/auth/google/url', (req, res) => {
-  const url = oauth2Client.generateAuthUrl({
-    access_type: 'offline',
-    scope: [
-      'https://www.googleapis.com/auth/userinfo.profile',
-      'https://www.googleapis.com/auth/userinfo.email',
-    ],
-    prompt: 'consent',
-  });
-
-  res.json({ url });
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'OK', message: 'Server is running' });
 });
 
-app.get('/auth/google/callback', async (req, res) => {
-  const { code } = req.query;
-
-  if (!code) {
-    return res.redirect(`${process.env.FRONTEND_URL}?error=no_code`);
-  }
-
-  try {
-    const { tokens } = await oauth2Client.getToken(code);
-    oauth2Client.setCredentials(tokens);
-
-    const redirectUrl = `${process.env.FRONTEND_URL}?token=${tokens.access_token}`;
-    res.redirect(redirectUrl);
-  } catch (error) {
-    console.error('Error during OAuth callback:', error);
-    res.redirect(`${process.env.FRONTEND_URL}?error=auth_failed`);
-  }
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({ error: 'Route not found' });
 });
 
-app.get('/auth/verify', async (req, res) => {
-  const authHeader = req.headers.authorization;
-
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ error: 'No token provided' });
-  }
-
-  const token = authHeader.split(' ')[1];
-
-  try {
-    const userInfoResponse = await fetch(
-      'https://www.googleapis.com/oauth2/v3/userinfo',
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      },
-    );
-
-    if (!userInfoResponse.ok) {
-      return res.status(401).json({ error: 'Invalid token' });
-    }
-
-    const userInfo = await userInfoResponse.json();
-
-    if (userInfo.picture) {
-      const baseUrl = userInfo.picture.split('=')[0];
-      userInfo.picture = `${baseUrl}=s400-c`;
-    }
-
-    res.json(userInfo);
-  } catch (error) {
-    console.error('Token verification error:', error);
-    res.status(401).json({ error: 'Invalid or expired token' });
-  }
-});
-
-app.post('/auth/logout', async (req, res) => {
-  const { token } = req.body;
-
-  if (!token) {
-    return res.status(400).json({ error: 'No token provided' });
-  }
-
-  try {
-    await fetch(`https://oauth2.googleapis.com/revoke?token=${token}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-    });
-
-    res.json({ message: 'Logged out successfully' });
-  } catch (error) {
-    console.error('Logout error:', error);
-    res.status(500).json({ error: 'Logout failed' });
-  }
-});
-
-// ============ EXISTING ROUTES ============
-
-app.get('/all', (req, res) => {
-  res.status(200).json(data);
-});
-
-app.get('/devices', (req, res) => {
-  const devices = data.filter((item) => item.type === AVAILABLE_TYPES.DEVICE);
-  res.status(200).json(devices);
-});
-
-app.get('/gateways', (req, res) => {
-  const gateways = data.filter((item) => item.type === AVAILABLE_TYPES.GATEWAY);
-  res.status(200).json(gateways);
-});
-
-app.get('/all/:userId', (req, res) => {
-  const userId = req.params.userId;
-  const usersDevicesAndGateways = data.filter((item) => item.userId === userId);
-  res.status(200).json(usersDevicesAndGateways);
-});
-
-app.get('/devices/:userId', (req, res) => {
-  const userId = req.params.userId;
-  const devices = data.filter(
-    (item) => item.type === AVAILABLE_TYPES.DEVICE && item.userId === userId,
-  );
-  res.status(200).json(devices);
-});
-
-app.get('/gateways/:userId', (req, res) => {
-  const userId = req.params.userId;
-  const gateways = data.filter(
-    (item) => item.type === AVAILABLE_TYPES.GATEWAY && item.userId == userId,
-  );
-  res.status(200).json(gateways);
-});
-
-app.post('/device', (req, res) => {
-  const { userId, name, description, gatewayID, location, metrics } = req.body;
-
-  if (!name || !description || !location || !userId) {
-    return res.status(400).json({ error: 'Missing required fields!' });
-  }
-
-  if (!location.lat || !location.lng) {
-    return res.status(400).json({ error: 'Invalid location format!' });
-  }
-
-  let customId = freeId.length ? freeId.shift() : (data.length + 1).toString();
-
-  const newDevice = {
-    id: customId,
-    userId,
-    type: AVAILABLE_TYPES.DEVICE,
-    name,
-    description,
-    gatewayID: gatewayID || null,
-    location: {
-      lat: parseFloat(location.lat),
-      lng: parseFloat(location.lng),
-    },
-    metrics: metrics || {},
-    airQuality: metrics?.pm2_5 ? calculateAirQuality(metrics.pm2_5) : 'green',
-  };
-
-  data.push(newDevice);
-  res
-    .status(201)
-    .json({ message: 'Device added successfully!', device: newDevice });
-});
-
-app.post('/gateway', (req, res) => {
-  const { userId, name, key, location } = req.body;
-
-  if (!userId || !name || !key || !location) {
-    return res.status(400).json({ error: 'Missing required fields!' });
-  }
-
-  if (!location.lat || !location.lng) {
-    return res.status(400).json({ error: 'Invalid location format!' });
-  }
-
-  let customId = freeId.length ? freeId.shift() : (data.length + 1).toString();
-
-  const newGateway = {
-    id: customId,
-    userId,
-    type: AVAILABLE_TYPES.GATEWAY,
-    name,
-    key,
-    location: {
-      lat: parseFloat(location.lat),
-      lng: parseFloat(location.lng),
-    },
-    metrics: {},
-    airQuality: 'green',
-  };
-
-  data.push(newGateway);
-
-  res
-    .status(201)
-    .json({ message: 'Gateway added successfully!', gateway: newGateway });
+// Error handler
+app.use((err, res) => {
+  console.error('Error:', err);
+  res.status(500).json({ error: 'Internal server error' });
 });
 
 app.listen(PORT, () => {
