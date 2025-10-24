@@ -85,17 +85,16 @@ export default function LoggedUserPanel() {
             )}
           </>
         )}
-
-        <button
-          className={styles.panel__addNewDevice}
-          onClick={() => {
-            dispatch(openModal());
-            dispatch(closeUserPanel());
-          }}
-        >
-          + Add new
-        </button>
       </div>
+      <button
+        className={styles.panel__addNewDevice}
+        onClick={() => {
+          dispatch(openModal());
+          dispatch(closeUserPanel());
+        }}
+      >
+        + Add new
+      </button>
 
       <div className={styles.panel__buttons}>
         <Button
