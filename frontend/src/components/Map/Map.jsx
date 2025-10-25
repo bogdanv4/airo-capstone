@@ -109,6 +109,8 @@ export default function Map() {
                 <DevicePopup
                   device={device}
                   address={address}
+                  lat={device.location.lat}
+                  lng={device.location.lng}
                   isLoading={geocodingLoading}
                 />
               </Popup>
