@@ -216,3 +216,36 @@ export const deleteDevice = async (req, res) => {
     res.status(500).json({ error: 'Failed to delete device' });
   }
 };
+
+export const updateDeviceAirQuality = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { pm25 } = req.body;
+
+    if (pm25 === undefined || pm25 === null) {
+      return res.status(400).json({ error: 'PM2.5 value is required' });
+    }
+
+    if (typeof pm25 !== 'number' || pm25 < 0) {
+      return res.status(400).json({ error: 'Invalid PM2.5 value' });
+    }
+
+    const device = await Device.findByIdAndUpdate(
+      id,
+      { pm25 },
+      { new: true, runValidators: true },
+    );
+
+    if (!device) {
+      return res.status(404).json({ error: 'Device not found' });
+    }
+
+    res.status(200).json({
+      message: 'Air quality updated successfully',
+      device,
+    });
+  } catch (error) {
+    console.error('Error updating air quality:', error);
+    res.status(500).json({ error: 'Failed to update air quality' });
+  }
+};
