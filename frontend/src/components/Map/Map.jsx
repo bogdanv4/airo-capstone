@@ -10,6 +10,10 @@ import DevicePopup from './DevicePopup';
 import greenIcon from 'src/assets/icons/greenMapIcon';
 import yellowIcon from 'src/assets/icons/yellowMapIcon';
 import redIcon from 'src/assets/icons/redMapIcon';
+import {
+  getAirQualityColor,
+  updateDeviceAirQuality,
+} from 'src/utility/airQuality';
 
 const iconsMap = {
   green: greenIcon,
@@ -26,6 +30,7 @@ export default function Map() {
   );
 
   const [{ latitude, longitude }, setCords] = useState({});
+  const [devicePM25Values, setDevicePM25Values] = useState({});
 
   const getUserLocation = () => {
     if (navigator.geolocation) {
@@ -54,6 +59,19 @@ export default function Map() {
       dispatch(fetchUserData(user.sub));
     }
   }, [dispatch, signedIn, user?.sub]);
+
+  const handleAirQualityUpdate = async (deviceId, pm25) => {
+    setDevicePM25Values((prev) => ({
+      ...prev,
+      [deviceId]: pm25,
+    }));
+
+    try {
+      await updateDeviceAirQuality(deviceId, pm25);
+    } catch (error) {
+      console.error('❌ Failed to save PM2.5 to database:', error);
+    }
+  };
 
   const allDevices = [...devices, ...gateways];
 
@@ -97,7 +115,9 @@ export default function Map() {
           }
 
           const address = getAddress(device.location.lat, device.location.lng);
-          const airQuality = device.airQuality || 'green';
+
+          const pm25 = devicePM25Values[device.id] ?? device.pm25;
+          const airQuality = getAirQualityColor(pm25);
 
           return (
             <Marker
@@ -109,7 +129,10 @@ export default function Map() {
                 <DevicePopup
                   device={device}
                   address={address}
+                  lat={device.location.lat}
+                  lng={device.location.lng}
                   isLoading={geocodingLoading}
+                  onAirQualityUpdate={handleAirQualityUpdate}
                 />
               </Popup>
             </Marker>

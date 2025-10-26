@@ -11,6 +11,7 @@ import {
   getDeviceById,
   updateDevice,
   deleteDevice,
+  updateDeviceAirQuality,
 } from '../controllers/device.controller.js';
 
 const router = express.Router();
@@ -28,8 +29,9 @@ router.get('/device/:id', getDeviceById);
 router.post('/device', createDevice);
 router.post('/gateway', createGateway);
 
-// Update route
+// Update routes
 router.put('/device/:id', updateDevice);
+router.patch('/device/:id/air-quality', updateDeviceAirQuality);
 
 // Delete route
 router.delete('/device/:id', deleteDevice);

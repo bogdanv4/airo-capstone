@@ -1,8 +1,17 @@
+import { useEffect, useState } from 'react';
 import styles from './map.module.css';
+import {
+  OPEN_WEATHER_API_BASE_URL,
+  OPEN_WEATHER_WEATHER_API_BASE_URL,
+} from 'src/constants/const';
 import Icon from 'src/components/Icon/Icon';
 import circle from 'src/assets/images/circle.svg';
 
-export default function DevicePopup({ device, address, isLoading }) {
+export default function DevicePopup({ device, address, isLoading, lat, lng }) {
+  const [pollutionData, setPollutionData] = useState(null);
+  const [weatherData, setWeatherData] = useState(null);
+  const [dataLoading, setDataLoading] = useState(true);
+
   const getPollutionLevel = (pm25) => {
     if (!pm25) {
       return 'green';
@@ -16,14 +25,14 @@ export default function DevicePopup({ device, address, isLoading }) {
     return 'red';
   };
 
-  const getCO2Level = (co2) => {
-    if (!co2) {
+  const getCOLevel = (co) => {
+    if (!co) {
       return 'green';
     }
-    if (co2 < 800) {
+    if (co < 4000) {
       return 'green';
     }
-    if (co2 < 1200) {
+    if (co < 10000) {
       return 'yellow';
     }
     return 'red';
@@ -33,10 +42,10 @@ export default function DevicePopup({ device, address, isLoading }) {
     if (!temp) {
       return 'green';
     }
-    if (temp >= 18 && temp <= 24) {
+    if (temp >= 18 && temp <= 25) {
       return 'green';
     }
-    if ((temp >= 15 && temp < 18) || (temp > 24 && temp <= 28)) {
+    if ((temp >= 10 && temp < 18) || (temp > 25 && temp <= 30)) {
       return 'yellow';
     }
     return 'red';
@@ -58,21 +67,59 @@ export default function DevicePopup({ device, address, isLoading }) {
     return 'red';
   };
 
-  const pollutionLevel = device.metrics?.pm2_5
-    ? getPollutionLevel(device.metrics.pm2_5)
-    : 'green';
+  useEffect(() => {
+    async function fetchEnvironmentalData() {
+      setDataLoading(true);
+      try {
+        const pollutionUrl = `${OPEN_WEATHER_API_BASE_URL}?lat=${lat}&lon=${lng}&appid=${import.meta.env.VITE_OPEN_WEATHER_API_KEY}`;
+        const weatherUrl = `${OPEN_WEATHER_WEATHER_API_BASE_URL}?lat=${lat}&lon=${lng}&units=metric&appid=${import.meta.env.VITE_OPEN_WEATHER_API_KEY}`;
 
-  const co2Level = device.metrics?.co2
-    ? getCO2Level(device.metrics.co2)
-    : 'green';
+        const [pollutionResponse, weatherResponse] = await Promise.all([
+          fetch(pollutionUrl),
+          fetch(weatherUrl),
+        ]);
 
-  const tempLevel = device.metrics?.temp
-    ? getTempLevel(device.metrics.temp)
-    : 'green';
+        if (!pollutionResponse.ok) {
+          throw new Error(`Pollution API failed: ${pollutionResponse.status}`);
+        }
 
-  const humidityLevel = device.metrics?.humidity
-    ? getHumidityLevel(device.metrics.humidity)
-    : 'green';
+        if (!weatherResponse.ok) {
+          throw new Error(`Weather API failed: ${weatherResponse.status}`);
+        }
+
+        const pollutionData = await pollutionResponse.json();
+        const weatherData = await weatherResponse.json();
+
+        setPollutionData(pollutionData.list[0].components);
+        setWeatherData({
+          temp: Math.round(weatherData.main.temp),
+          humidity: weatherData.main.humidity,
+        });
+      } catch (error) {
+        console.error('Error fetching environmental data:', error);
+        setPollutionData({});
+        setWeatherData({});
+      } finally {
+        setDataLoading(false);
+      }
+    }
+
+    if (lat && lng) {
+      fetchEnvironmentalData();
+    } else {
+      setDataLoading(false);
+    }
+  }, [lat, lng]);
+
+  const pm25 = pollutionData?.pm2_5;
+  const co = pollutionData?.co;
+  const temp = weatherData?.temp;
+  const humidity = weatherData?.humidity;
+
+  const pollutionLevel = getPollutionLevel(pm25);
+  const coLevel = getCOLevel(co);
+  const tempLevel = getTempLevel(temp);
+  const humidityLevel = getHumidityLevel(humidity);
 
   return (
     <div className={styles.popupContent}>
@@ -80,7 +127,7 @@ export default function DevicePopup({ device, address, isLoading }) {
         <div className={styles.polutionIconWrapper}>
           <div className={styles.polutionText}>
             <p className={styles.polutionTextMain}>
-              {device.metrics?.pm2_5 || 'N/A'}
+              {dataLoading ? '...' : pm25 ? pm25.toFixed(1) : 'N/A'}
             </p>
             <p className={styles.polutionTextSecondary}>PM2.5</p>
           </div>
@@ -103,30 +150,33 @@ export default function DevicePopup({ device, address, isLoading }) {
         </div>
       </div>
 
-      {device.metrics && (
-        <div className={styles.metricsWrapper}>
-          <div className={`${styles.metric} ${styles[`metric-${co2Level}`]}`}>
-            <p className={styles.metric__title}>CO₂</p>
-            <p className={styles.metric__number}>
-              {device.metrics.co2 || 'N/A'}
-            </p>
-          </div>
-          <div className={`${styles.metric} ${styles[`metric-${tempLevel}`]}`}>
-            <p className={styles.metric__title}>Temp</p>
-            <p className={styles.metric__number}>
-              {device.metrics.temp ? `${device.metrics.temp} °C` : 'N/A'}
-            </p>
-          </div>
-          <div
-            className={`${styles.metric} ${styles[`metric-${humidityLevel}`]}`}
-          >
-            <p className={styles.metric__title}>Humidity</p>
-            <p className={styles.metric__number}>
-              {device.metrics.humidity ? `${device.metrics.humidity}%` : 'N/A'}
-            </p>
-          </div>
+      <div className={styles.metricsWrapper}>
+        <div className={`${styles.metric} ${styles[`metric-${coLevel}`]}`}>
+          <p className={styles.metric__title}>CO</p>
+          <p className={styles.metric__number}>
+            {dataLoading ? '...' : co ? `${(co / 1000).toFixed(1)}` : 'N/A'}
+          </p>
+          <p className={styles.metric__unit}>mg/m³</p>
         </div>
-      )}
+        <div className={`${styles.metric} ${styles[`metric-${tempLevel}`]}`}>
+          <p className={styles.metric__title}>Temp</p>
+          <p className={styles.metric__number}>
+            {dataLoading ? '...' : temp !== undefined ? `${temp}°C` : 'N/A'}
+          </p>
+        </div>
+        <div
+          className={`${styles.metric} ${styles[`metric-${humidityLevel}`]}`}
+        >
+          <p className={styles.metric__title}>Humidity</p>
+          <p className={styles.metric__number}>
+            {dataLoading
+              ? '...'
+              : humidity !== undefined
+                ? `${humidity}%`
+                : 'N/A'}
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

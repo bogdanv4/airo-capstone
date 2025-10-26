@@ -6,3 +6,9 @@ export const API_BASE_URL = 'http://localhost:3000';
 export const AUTH_URL = `${API_BASE_URL}/auth/google/url`;
 export const VERIFY_TOKEN_URL = `${API_BASE_URL}/auth/verify`;
 export const LOGOUT_URL = `${API_BASE_URL}/auth/logout`;
+
+export const OPEN_WEATHER_API_BASE_URL =
+  'http://api.openweathermap.org/data/2.5/air_pollution';
+
+export const OPEN_WEATHER_WEATHER_API_BASE_URL =
+  'https://api.openweathermap.org/data/2.5/weather';

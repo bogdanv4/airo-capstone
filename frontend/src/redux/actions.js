@@ -68,3 +68,31 @@ export const addGateway = (gatewayData) => async (dispatch) => {
   });
   return response;
 };
+
+export const updateDeviceAirQualityAction =
+  (deviceId, pm25) => async (dispatch) => {
+    try {
+      const response = await fetch(`/api/devices/${deviceId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ pm25 }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update device air quality');
+      }
+
+      const updatedDevice = await response.json();
+
+      console.log('Device air quality updated:', updatedDevice);
+
+      dispatch({
+        type: 'UPDATE_DEVICE_AIR_QUALITY',
+        payload: { deviceId, pm25 },
+      });
+    } catch (error) {
+      console.error('Error updating device air quality:', error);
+    }
+  };
