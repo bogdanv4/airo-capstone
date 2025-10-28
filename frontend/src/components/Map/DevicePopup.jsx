@@ -7,7 +7,14 @@ import {
 import Icon from 'src/components/Icon/Icon';
 import circle from 'src/assets/images/circle.svg';
 
-export default function DevicePopup({ device, address, isLoading, lat, lng }) {
+export default function DevicePopup({
+  device,
+  address,
+  isLoading,
+  lat,
+  lng,
+  onAirQualityUpdate,
+}) {
   const [pollutionData, setPollutionData] = useState(null);
   const [weatherData, setWeatherData] = useState(null);
   const [dataLoading, setDataLoading] = useState(true);
@@ -95,6 +102,13 @@ export default function DevicePopup({ device, address, isLoading, lat, lng }) {
           temp: Math.round(weatherData.main.temp),
           humidity: weatherData.main.humidity,
         });
+
+        if (
+          onAirQualityUpdate &&
+          pollutionData.list[0].components.pm2_5 !== undefined
+        ) {
+          onAirQualityUpdate(device.id, pollutionData.list[0].components.pm2_5);
+        }
       } catch (error) {
         console.error('Error fetching environmental data:', error);
         setPollutionData({});
@@ -109,7 +123,7 @@ export default function DevicePopup({ device, address, isLoading, lat, lng }) {
     } else {
       setDataLoading(false);
     }
-  }, [lat, lng]);
+  }, [lat, lng, device.id, onAirQualityUpdate]);
 
   const pm25 = pollutionData?.pm2_5;
   const co = pollutionData?.co;

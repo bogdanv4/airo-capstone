@@ -1,19 +1,19 @@
 import { useSelector, useDispatch } from 'react-redux';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { MapContainer, Marker, Popup, ZoomControl } from 'react-leaflet';
 import styles from './map.module.css';
 import { useBatchGeocode } from 'src/hooks/useBatchGeocode';
 import { fetchUserData } from 'src/redux/actions';
+import {
+  getAirQualityColor,
+  updateDeviceAirQuality,
+} from 'src/utility/airQuality';
 import CenterButton from 'src/components/CenterButton/CenterButton';
 import MapTiler from './MapTiler';
 import DevicePopup from './DevicePopup';
 import greenIcon from 'src/assets/icons/greenMapIcon';
 import yellowIcon from 'src/assets/icons/yellowMapIcon';
 import redIcon from 'src/assets/icons/redMapIcon';
-import {
-  getAirQualityColor,
-  updateDeviceAirQuality,
-} from 'src/utility/airQuality';
 
 const iconsMap = {
   green: greenIcon,
@@ -60,7 +60,7 @@ export default function Map() {
     }
   }, [dispatch, signedIn, user?.sub]);
 
-  const handleAirQualityUpdate = async (deviceId, pm25) => {
+  const handleAirQualityUpdate = useCallback(async (deviceId, pm25) => {
     setDevicePM25Values((prev) => ({
       ...prev,
       [deviceId]: pm25,
@@ -69,9 +69,9 @@ export default function Map() {
     try {
       await updateDeviceAirQuality(deviceId, pm25);
     } catch (error) {
-      console.error('❌ Failed to save PM2.5 to database:', error);
+      console.error('Failed to save PM2.5 to database:', error);
     }
-  };
+  }, []);
 
   const allDevices = [...devices, ...gateways];
 
