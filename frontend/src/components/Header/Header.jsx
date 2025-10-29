@@ -20,8 +20,6 @@ export default function Header({ loading }) {
     }
   }
 
-  console.log('User picture:', user?.picture);
-
   return (
     <header className={styles.header}>
       <Logo />
