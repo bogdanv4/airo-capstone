@@ -1,6 +1,12 @@
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { useEffect, useState, useCallback } from 'react';
-import { MapContainer, Marker, Popup, ZoomControl } from 'react-leaflet';
+import {
+  MapContainer,
+  Marker,
+  Popup,
+  ZoomControl,
+  useMap,
+} from 'react-leaflet';
 import styles from './map.module.css';
 import { useBatchGeocode } from 'src/hooks/useBatchGeocode';
 import { fetchUserData } from 'src/redux/actions';
@@ -21,7 +27,23 @@ const iconsMap = {
   red: redIcon,
 };
 
-export default function Map() {
+function MapController({ selectedDevice }) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (selectedDevice?.location) {
+      map.flyTo(
+        [selectedDevice.location.lat, selectedDevice.location.lng],
+        18,
+        { duration: 1.5 },
+      );
+    }
+  }, [selectedDevice, map]);
+
+  return null;
+}
+
+export default function Map({ selectedDevice }) {
   const dispatch = useDispatch();
   const signedIn = useSelector((state) => state.auth.signedIn);
   const user = useSelector((state) => state.auth.user);
@@ -31,6 +53,7 @@ export default function Map() {
 
   const [{ latitude, longitude }, setCords] = useState({});
   const [devicePM25Values, setDevicePM25Values] = useState({});
+  const markerRefs = useRef({});
 
   const getUserLocation = () => {
     if (navigator.geolocation) {
@@ -59,6 +82,14 @@ export default function Map() {
       dispatch(fetchUserData(user.sub));
     }
   }, [dispatch, signedIn, user?.sub]);
+
+  useEffect(() => {
+    if (selectedDevice?.id && markerRefs.current[selectedDevice.id]) {
+      setTimeout(() => {
+        markerRefs.current[selectedDevice.id]?.openPopup();
+      }, 1600);
+    }
+  }, [selectedDevice]);
 
   const handleAirQualityUpdate = useCallback(async (deviceId, pm25) => {
     setDevicePM25Values((prev) => ({
@@ -101,6 +132,7 @@ export default function Map() {
     >
       <MapTiler />
       <ZoomControl position="bottomright" />
+      <MapController selectedDevice={selectedDevice} />
       <CenterButton latitude={latitude} longitude={longitude} />
       <Marker position={[latitude, longitude]}>
         <Popup>You are here.</Popup>
@@ -115,7 +147,6 @@ export default function Map() {
           }
 
           const address = getAddress(device.location.lat, device.location.lng);
-
           const pm25 = devicePM25Values[device.id] ?? device.pm25;
           const airQuality = getAirQualityColor(pm25);
 
@@ -124,6 +155,11 @@ export default function Map() {
               key={device.id}
               position={[device.location.lat, device.location.lng]}
               icon={iconsMap[airQuality]}
+              ref={(ref) => {
+                if (ref) {
+                  markerRefs.current[device.id] = ref;
+                }
+              }}
             >
               <Popup>
                 <DevicePopup
