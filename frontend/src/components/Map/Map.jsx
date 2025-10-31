@@ -147,7 +147,6 @@ export default function Map({ selectedDevice }) {
           }
 
           const address = getAddress(device.location.lat, device.location.lng);
-
           const pm25 = devicePM25Values[device.id] ?? device.pm25;
           const airQuality = getAirQualityColor(pm25);
 
