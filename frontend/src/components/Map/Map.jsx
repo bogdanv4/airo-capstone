@@ -43,14 +43,14 @@ function MapController({ selectedDevice }) {
   return null;
 }
 
-export default function Map({ selectedDevice }) {
+export default function Map() {
   const dispatch = useDispatch();
   const signedIn = useSelector((state) => state.auth.signedIn);
   const user = useSelector((state) => state.auth.user);
   const { devices, gateways, loading, error } = useSelector(
     (state) => state.data,
   );
-
+  const selectedDevice = useSelector((state) => state.map.selectedDevice);
   const [{ latitude, longitude }, setCords] = useState({});
   const [devicePM25Values, setDevicePM25Values] = useState({});
   const markerRefs = useRef({});
