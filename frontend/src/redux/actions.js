@@ -16,6 +16,9 @@ export const FETCH_USER_DATA_FAILURE = 'FETCH_USER_DATA_FAILURE';
 export const ADD_DEVICE_SUCCESS = 'ADD_DEVICE_SUCCESS';
 export const ADD_GATEWAY_SUCCESS = 'ADD_GATEWAY_SUCCESS';
 
+export const SELECT_DEVICE = 'SELECT_DEVICE';
+export const CLEAR_SELECTED_DEVICE = 'CLEAR_SELECTED_DEVICE';
+
 export const login = (user, token) => ({
   type: LOGIN,
   payload: { user, token },
@@ -30,6 +33,15 @@ export const closeUserPanel = () => ({ type: CLOSE_USER_PANEL });
 
 export const openModal = () => ({ type: OPEN_MODAL });
 export const closeModal = () => ({ type: CLOSE_MODAL });
+
+export const selectDevice = (device) => ({
+  type: SELECT_DEVICE,
+  payload: device,
+});
+
+export const clearSelectedDevice = () => ({
+  type: CLEAR_SELECTED_DEVICE,
+});
 
 export const fetchUserData = (userId) => async (dispatch) => {
   dispatch({ type: FETCH_USER_DATA_REQUEST });

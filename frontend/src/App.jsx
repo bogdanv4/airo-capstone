@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import './index.css';
 import { useAuth } from 'src/hooks/useAuth';
 import { useOAuthCallback } from 'src/hooks/useOAuthCallback';
@@ -10,17 +9,12 @@ import Modal from 'src/components/Modal/Modal';
 function App() {
   const { loading } = useAuth();
   useOAuthCallback();
-  const [selectedDevice, setSelectedDevice] = useState(null);
-
-  const handleDeviceSelect = (device) => {
-    setSelectedDevice(device);
-  };
 
   return (
     <>
-      <Header loading={loading} onDeviceSelect={handleDeviceSelect} />
+      <Header loading={loading} />
       <UserPanel loading={loading} />
-      <Map selectedDevice={selectedDevice} />
+      <Map />
       <Modal />
     </>
   );

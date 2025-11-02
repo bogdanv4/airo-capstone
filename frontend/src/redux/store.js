@@ -4,6 +4,7 @@ import {
   userPanelReducer,
   modalReducer,
   dataReducer,
+  mapReducer,
 } from 'src/redux/reducers';
 
 // Simple thunk middleware for async actions
@@ -19,6 +20,7 @@ const rootReducer = combineReducers({
   userPanel: userPanelReducer,
   modal: modalReducer,
   data: dataReducer,
+  map: mapReducer,
 });
 
 export const store = createStore(rootReducer, applyMiddleware(thunk));

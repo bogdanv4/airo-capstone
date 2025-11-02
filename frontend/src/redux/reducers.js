@@ -10,6 +10,8 @@ import {
   FETCH_USER_DATA_FAILURE,
   ADD_DEVICE_SUCCESS,
   ADD_GATEWAY_SUCCESS,
+  SELECT_DEVICE,
+  CLEAR_SELECTED_DEVICE,
 } from 'src/redux/actions';
 
 const initialAuthState = {
@@ -27,6 +29,10 @@ const initialDataState = {
   gateways: [],
   loading: false,
   error: null,
+};
+
+const initialMapState = {
+  selectedDevice: null,
 };
 
 export const authReducer = (state = initialAuthState, action) => {
@@ -108,6 +114,25 @@ export const dataReducer = (state = initialDataState, action) => {
       return {
         ...state,
         gateways: [...state.gateways, action.payload],
+      };
+
+    default:
+      return state;
+  }
+};
+
+export const mapReducer = (state = initialMapState, action) => {
+  switch (action.type) {
+    case SELECT_DEVICE:
+      return {
+        ...state,
+        selectedDevice: action.payload,
+      };
+
+    case CLEAR_SELECTED_DEVICE:
+      return {
+        ...state,
+        selectedDevice: null,
       };
 
     default:

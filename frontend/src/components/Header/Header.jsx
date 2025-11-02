@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styles from './header.module.css';
-import { openUserPanel, closeUserPanel } from 'src/redux/actions';
+import { openUserPanel, closeUserPanel, selectDevice } from 'src/redux/actions';
 import { API_BASE_URL } from 'src/constants/const.js';
 import Logo from 'src/components/Logo/Logo';
 import Toggle from 'src/components/Toggle/Toggle';
 import Icon from 'src/components/Icon/Icon';
 import Dropdown from 'src/components/Header/Dropdown';
 
-export default function Header({ loading, onDeviceSelect }) {
+export default function Header({ loading }) {
   const dispatch = useDispatch();
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredDevices, setFilteredDevices] = useState([]);
@@ -60,7 +60,7 @@ export default function Header({ loading, onDeviceSelect }) {
   }
 
   function handleDeviceSelect(device) {
-    onDeviceSelect?.(device);
+    dispatch(selectDevice(device));
     setSearchQuery('');
     setFilteredDevices([]);
   }
