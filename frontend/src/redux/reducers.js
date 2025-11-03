@@ -5,6 +5,8 @@ import {
   CLOSE_MODAL,
   CLOSE_USER_PANEL,
   OPEN_USER_PANEL,
+  OPEN_DEVICE_PANEL,
+  CLOSE_DEVICE_PANEL,
   FETCH_USER_DATA_REQUEST,
   FETCH_USER_DATA_SUCCESS,
   FETCH_USER_DATA_FAILURE,
@@ -21,6 +23,11 @@ const initialAuthState = {
 };
 
 const initialUserPanelState = { isOpen: false };
+
+const initialDevicePanelState = {
+  isOpen: false,
+  selectedDevice: null,
+};
 
 const initialModalState = { isOpen: false };
 
@@ -64,6 +71,23 @@ export const userPanelReducer = (state = initialUserPanelState, action) => {
       return { ...state, isOpen: true };
     case CLOSE_USER_PANEL:
       return { ...state, isOpen: false };
+    default:
+      return state;
+  }
+};
+
+export const devicePanelReducer = (state = initialDevicePanelState, action) => {
+  switch (action.type) {
+    case OPEN_DEVICE_PANEL:
+      return {
+        isOpen: true,
+        selectedDevice: action.payload,
+      };
+    case CLOSE_DEVICE_PANEL:
+      return {
+        isOpen: false,
+        selectedDevice: null,
+      };
     default:
       return state;
   }

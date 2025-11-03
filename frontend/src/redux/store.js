@@ -2,6 +2,7 @@ import { combineReducers, createStore, applyMiddleware } from 'redux';
 import {
   authReducer,
   userPanelReducer,
+  devicePanelReducer,
   modalReducer,
   dataReducer,
   mapReducer,
@@ -18,6 +19,7 @@ const thunk = (store) => (next) => (action) => {
 const rootReducer = combineReducers({
   auth: authReducer,
   userPanel: userPanelReducer,
+  devicePanel: devicePanelReducer,
   modal: modalReducer,
   data: dataReducer,
   map: mapReducer,

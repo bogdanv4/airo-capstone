@@ -9,6 +9,7 @@
   padding: 2rem;
   border-radius: 0.2rem;
   box-shadow: 0px 10px 20px 0px var(--color-primary-light);
+  cursor: pointer;
 }
 .deviceCard__icon {
   margin-right: 2rem;
