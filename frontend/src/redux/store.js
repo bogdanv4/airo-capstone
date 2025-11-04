@@ -8,7 +8,6 @@ import {
   mapReducer,
 } from 'src/redux/reducers';
 
-// Simple thunk middleware for async actions
 const thunk = (store) => (next) => (action) => {
   if (typeof action === 'function') {
     return action(store.dispatch, store.getState);
