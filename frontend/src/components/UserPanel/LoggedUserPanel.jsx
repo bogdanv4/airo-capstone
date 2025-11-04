@@ -1,7 +1,12 @@
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styles from './userPanel.module.css';
-import { openModal, closeUserPanel, fetchUserData } from 'src/redux/actions';
+import {
+  openModal,
+  closeUserPanel,
+  fetchUserData,
+  openDevicePanel,
+} from 'src/redux/actions';
 import { useAuth } from 'src/hooks/useAuth';
 import { useBatchGeocode } from 'src/hooks/useBatchGeocode';
 import DeviceCard from 'src/components/DeviceCard/DeviceCard';
@@ -29,6 +34,17 @@ export default function LoggedUserPanel() {
 
   const { getAddress, loading: geocodingLoading } =
     useBatchGeocode(allLocations);
+
+  const handleDeviceClick = (device, type) => {
+    const deviceWithAddress = {
+      ...device,
+      type,
+      address: geocodingLoading
+        ? 'Loading address...'
+        : getAddress(device.location.lat, device.location.lng),
+    };
+    dispatch(openDevicePanel(deviceWithAddress));
+  };
 
   return (
     <div className={`${styles.panel} ${userPanelOpen ? styles.openPanel : ''}`}>
@@ -60,6 +76,7 @@ export default function LoggedUserPanel() {
                   width: '28.13',
                   height: '32',
                 }}
+                onClick={() => handleDeviceClick(gateway, 'gateway')}
               />
             ))}
 
@@ -77,6 +94,7 @@ export default function LoggedUserPanel() {
                   width: '32',
                   height: '32',
                 }}
+                onClick={() => handleDeviceClick(device, 'device')}
               />
             ))}
 

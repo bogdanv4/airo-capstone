@@ -1,9 +1,9 @@
 import styles from './deviceCard.module.css';
 import Icon from 'src/components/Icon/Icon';
 
-export default function DeviceCard({ heading, address, icon }) {
+export default function DeviceCard({ heading, address, icon, onClick }) {
   return (
-    <div className={styles.deviceCard}>
+    <div className={styles.deviceCard} onClick={onClick}>
       <div className={styles.deviceCard__icon}>
         <div className={styles.deviceCard__circle}></div>
         <Icon {...icon} />

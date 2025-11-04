@@ -6,6 +6,9 @@ export const LOGOUT = 'LOGOUT';
 export const OPEN_USER_PANEL = 'OPEN_USER_PANEL';
 export const CLOSE_USER_PANEL = 'CLOSE_USER_PANEL';
 
+export const OPEN_DEVICE_PANEL = 'OPEN_DEVICE_PANEL';
+export const CLOSE_DEVICE_PANEL = 'CLOSE_DEVICE_PANEL';
+
 export const OPEN_MODAL = 'OPEN_MODAL';
 export const CLOSE_MODAL = 'CLOSE_MODAL';
 
@@ -30,6 +33,15 @@ export const logout = () => ({
 
 export const openUserPanel = () => ({ type: OPEN_USER_PANEL });
 export const closeUserPanel = () => ({ type: CLOSE_USER_PANEL });
+
+export const openDevicePanel = (device) => ({
+  type: OPEN_DEVICE_PANEL,
+  payload: device,
+});
+
+export const closeDevicePanel = () => ({
+  type: CLOSE_DEVICE_PANEL,
+});
 
 export const openModal = () => ({ type: OPEN_MODAL });
 export const closeModal = () => ({ type: CLOSE_MODAL });
