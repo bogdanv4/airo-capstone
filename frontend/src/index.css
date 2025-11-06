@@ -129,6 +129,14 @@ h6 {
   margin: 0 !important;
 }
 
+.css-8ygcki-MuiChartsSurface-root {
+  margin-left: 0.7rem;
+}
+
+.css-1vrdpux text {
+  fill: var(--color-font-primary) !important;
+}
+
 .loading {
   color: var(--color-font-primary);
   font-size: 1.4rem;

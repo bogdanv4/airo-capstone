@@ -1,6 +1,8 @@
+import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styles from './devicePanel.module.css';
 import { closeDevicePanel } from 'src/redux/actions';
+import { reverseGeocode } from 'src/utility/geocoding';
 import Icon from 'src/components/Icon/Icon';
 import Button from 'src/components/Button/Button';
 import DeviceMetric from './DeviceMetric';
@@ -8,6 +10,21 @@ import DeviceMetric from './DeviceMetric';
 export default function DevicePanel() {
   const dispatch = useDispatch();
   const { isOpen, selectedDevice } = useSelector((state) => state.devicePanel);
+  const [activeTimeRange, setActiveTimeRange] = useState('hour');
+  const [address, setAddress] = useState('Loading address...');
+
+  useEffect(() => {
+    if (selectedDevice?.location?.lat && selectedDevice?.location?.lng) {
+      reverseGeocode(
+        selectedDevice.location.lat,
+        selectedDevice.location.lng,
+      ).then((addr) => {
+        setAddress(addr);
+      });
+    } else {
+      setAddress('Address not available');
+    }
+  }, [selectedDevice]);
 
   if (!isOpen || !selectedDevice) {
     return null;
@@ -19,6 +36,11 @@ export default function DevicePanel() {
 
   const handleEdit = () => {
     console.log('Edit device', selectedDevice);
+  };
+
+  const handleTimeRangeClick = (range) => {
+    setActiveTimeRange(range);
+    console.log(range, selectedDevice);
   };
 
   console.log('Selected Device:', selectedDevice);
@@ -39,24 +61,33 @@ export default function DevicePanel() {
 
       <div className={styles.panel__info}>
         <Icon id="locationPinMiniIcon" width="12" height="12" />
-        <p>{'Neka adresa 123'}</p>
+        <p>{address}</p>
       </div>
 
       <div className={styles.panel__actions}>
-        <Button onClick={() => console.log('Hour', selectedDevice)}>
+        <Button
+          onClick={() => handleTimeRangeClick('hour')}
+          className={activeTimeRange === 'hour' ? styles.active : ''}
+        >
           Hour
         </Button>
-        <Button onClick={() => console.log('Today', selectedDevice)}>
+        <Button
+          onClick={() => handleTimeRangeClick('today')}
+          className={activeTimeRange === 'today' ? styles.active : ''}
+        >
           Today
         </Button>
-        <Button onClick={() => console.log('Week', selectedDevice)}>
+        <Button
+          onClick={() => handleTimeRangeClick('week')}
+          className={activeTimeRange === 'week' ? styles.active : ''}
+        >
           Week
         </Button>
       </div>
       <div className={styles.metrics}>
         <DeviceMetric
           metric="PM2.5"
-          normalRange="1-9"
+          normalRange="0-12"
           value={selectedDevice.metrics.pm2_5}
         />
         <DeviceMetric
@@ -70,8 +101,8 @@ export default function DevicePanel() {
         />
         <DeviceMetric
           metric="Humidity"
-          normalRange="1-9"
-          value={selectedDevice.metrics.pm2_5}
+          normalRange="30-60%"
+          value={selectedDevice.metrics.humidity}
         />
       </div>
 
