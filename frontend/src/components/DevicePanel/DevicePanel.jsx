@@ -1,12 +1,30 @@
+import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styles from './devicePanel.module.css';
 import { closeDevicePanel } from 'src/redux/actions';
+import { reverseGeocode } from 'src/utility/geocoding';
 import Icon from 'src/components/Icon/Icon';
 import Button from 'src/components/Button/Button';
+import DeviceMetric from './DeviceMetric';
 
 export default function DevicePanel() {
   const dispatch = useDispatch();
   const { isOpen, selectedDevice } = useSelector((state) => state.devicePanel);
+  const [activeTimeRange, setActiveTimeRange] = useState('hour');
+  const [address, setAddress] = useState('Loading address...');
+
+  useEffect(() => {
+    if (selectedDevice?.location?.lat && selectedDevice?.location?.lng) {
+      reverseGeocode(
+        selectedDevice.location.lat,
+        selectedDevice.location.lng,
+      ).then((addr) => {
+        setAddress(addr);
+      });
+    } else {
+      setAddress('Address not available');
+    }
+  }, [selectedDevice]);
 
   if (!isOpen || !selectedDevice) {
     return null;
@@ -16,89 +34,85 @@ export default function DevicePanel() {
     dispatch(closeDevicePanel());
   };
 
+  const handleEdit = () => {
+    console.log('Edit device', selectedDevice);
+  };
+
+  const handleTimeRangeClick = (range) => {
+    setActiveTimeRange(range);
+    console.log(range, selectedDevice);
+  };
+
+  console.log('Selected Device:', selectedDevice);
+
   return (
     <div className={`${styles.panel} ${isOpen ? styles.openPanel : ''}`}>
       <div className={styles.panel__header}>
         <div className={styles.panel__title}>
-          <Icon
-            id={
-              selectedDevice.type === 'gateway' ? 'antennaIcon' : 'routerIcon'
-            }
-            width="24"
-            height="24"
-          />
           <h2>{selectedDevice.name}</h2>
+          <button onClick={handleEdit}>
+            <Icon id="pencilIcon" width="13" height="13" />
+          </button>
         </div>
         <button onClick={handleClose} className={styles.panel__closeBtn}>
           <Icon id="xIcon" width="13" height="13" />
         </button>
       </div>
 
-      <div className={styles.panel__content}>
-        <div className={styles.panel__section}>
-          <h3>Device Information</h3>
-          <div className={styles.panel__info}>
-            <div className={styles.panel__infoRow}>
-              <span className={styles.panel__label}>Type:</span>
-              <span className={styles.panel__value}>
-                {selectedDevice.type === 'gateway' ? 'Gateway' : 'Device'}
-              </span>
-            </div>
-            <div className={styles.panel__infoRow}>
-              <span className={styles.panel__label}>ID:</span>
-              <span className={styles.panel__value}>{selectedDevice.id}</span>
-            </div>
-            <div className={styles.panel__infoRow}>
-              <span className={styles.panel__label}>Address:</span>
-              <span className={styles.panel__value}>
-                {selectedDevice.address}
-              </span>
-            </div>
-            {selectedDevice.location && (
-              <>
-                <div className={styles.panel__infoRow}>
-                  <span className={styles.panel__label}>Latitude:</span>
-                  <span className={styles.panel__value}>
-                    {selectedDevice.location.lat.toFixed(6)}
-                  </span>
-                </div>
-                <div className={styles.panel__infoRow}>
-                  <span className={styles.panel__label}>Longitude:</span>
-                  <span className={styles.panel__value}>
-                    {selectedDevice.location.lng.toFixed(6)}
-                  </span>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-
-        {selectedDevice.status && (
-          <div className={styles.panel__section}>
-            <h3>Status</h3>
-            <div className={styles.panel__info}>
-              <div className={styles.panel__infoRow}>
-                <span className={styles.panel__label}>Status:</span>
-                <span className={styles.panel__value}>
-                  {selectedDevice.status}
-                </span>
-              </div>
-            </div>
-          </div>
-        )}
+      <div className={styles.panel__info}>
+        <Icon id="locationPinMiniIcon" width="12" height="12" />
+        <p>{address}</p>
       </div>
 
       <div className={styles.panel__actions}>
-        <Button onClick={() => console.log('Edit device', selectedDevice)}>
-          Edit Device
+        <Button
+          onClick={() => handleTimeRangeClick('hour')}
+          className={activeTimeRange === 'hour' ? styles.active : ''}
+        >
+          Hour
         </Button>
         <Button
-          onClick={() => console.log('Delete device', selectedDevice)}
-          variant="danger"
+          onClick={() => handleTimeRangeClick('today')}
+          className={activeTimeRange === 'today' ? styles.active : ''}
         >
-          Delete Device
+          Today
+        </Button>
+        <Button
+          onClick={() => handleTimeRangeClick('week')}
+          className={activeTimeRange === 'week' ? styles.active : ''}
+        >
+          Week
         </Button>
       </div>
+      <div className={styles.metrics}>
+        <DeviceMetric
+          metric="PM2.5"
+          normalRange="0-12"
+          value={selectedDevice.metrics.pm2_5}
+        />
+        <DeviceMetric
+          metric="CO2"
+          normalRange="< 1000"
+          value={selectedDevice.metrics.co2}
+        />
+        <DeviceMetric
+          metric="Temperature"
+          value={selectedDevice.metrics.temp}
+        />
+        <DeviceMetric
+          metric="Humidity"
+          normalRange="30-60%"
+          value={selectedDevice.metrics.humidity}
+        />
+      </div>
+
+      <button
+        className={styles.deleteDevice}
+        onClick={() => console.log('Remove Device', selectedDevice)}
+      >
+        <Icon id="deleteIcon" width="36" height="36" />
+        <span>Remove Device</span>
+      </button>
     </div>
   );
 }
