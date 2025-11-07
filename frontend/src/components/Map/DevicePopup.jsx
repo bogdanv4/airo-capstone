@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import styles from './map.module.css';
 import {
   OPEN_WEATHER_API_BASE_URL,
@@ -13,11 +13,16 @@ export default function DevicePopup({
   isLoading,
   lat,
   lng,
-  onAirQualityUpdate,
+  onMetricsUpdate,
 }) {
   const [pollutionData, setPollutionData] = useState(null);
   const [weatherData, setWeatherData] = useState(null);
   const [dataLoading, setDataLoading] = useState(true);
+  const onMetricsUpdateRef = useRef(onMetricsUpdate);
+
+  useEffect(() => {
+    onMetricsUpdateRef.current = onMetricsUpdate;
+  }, [onMetricsUpdate]);
 
   const getPollutionLevel = (pm25) => {
     if (!pm25) {
@@ -103,11 +108,14 @@ export default function DevicePopup({
           humidity: weatherData.main.humidity,
         });
 
-        if (
-          onAirQualityUpdate &&
-          pollutionData.list[0].components.pm2_5 !== undefined
-        ) {
-          onAirQualityUpdate(device.id, pollutionData.list[0].components.pm2_5);
+        if (onMetricsUpdateRef.current) {
+          const metrics = {
+            pm25: pollutionData.list[0].components.pm2_5,
+            co: pollutionData.list[0].components.co,
+            temp: Math.round(weatherData.main.temp),
+            humidity: weatherData.main.humidity,
+          };
+          onMetricsUpdateRef.current(device.id, metrics);
         }
       } catch (error) {
         console.error('Error fetching environmental data:', error);
@@ -123,7 +131,7 @@ export default function DevicePopup({
     } else {
       setDataLoading(false);
     }
-  }, [lat, lng, device.id, onAirQualityUpdate]);
+  }, [lat, lng, device.id]);
 
   const pm25 = pollutionData?.pm2_5;
   const co = pollutionData?.co;

@@ -217,35 +217,48 @@ export const deleteDevice = async (req, res) => {
   }
 };
 
-export const updateDeviceAirQuality = async (req, res) => {
+export const updateDeviceMetrics = async (req, res) => {
   try {
     const { id } = req.params;
-    const { pm25 } = req.body;
+    const { pm25, co, temp, humidity } = req.body;
 
-    if (pm25 === undefined || pm25 === null) {
-      return res.status(400).json({ error: 'PM2.5 value is required' });
+    if (
+      pm25 === undefined &&
+      co === undefined &&
+      temp === undefined &&
+      humidity === undefined
+    ) {
+      return res.status(400).json({ error: 'At least one metric is required' });
     }
 
-    if (typeof pm25 !== 'number' || pm25 < 0) {
-      return res.status(400).json({ error: 'Invalid PM2.5 value' });
-    }
-
-    const device = await Device.findByIdAndUpdate(
-      id,
-      { pm25 },
-      { new: true, runValidators: true },
-    );
+    const device = await Device.findById(id);
 
     if (!device) {
       return res.status(404).json({ error: 'Device not found' });
     }
 
+    if (pm25 !== undefined) {
+      device.metrics.set('pm2_5', pm25);
+      device.pm25 = pm25;
+    }
+    if (co !== undefined) {
+      device.metrics.set('co', co);
+    }
+    if (temp !== undefined) {
+      device.metrics.set('temp', temp);
+    }
+    if (humidity !== undefined) {
+      device.metrics.set('humidity', humidity);
+    }
+
+    await device.save();
+
     res.status(200).json({
-      message: 'Air quality updated successfully',
+      message: 'Metrics updated successfully',
       device,
     });
   } catch (error) {
-    console.error('Error updating air quality:', error);
-    res.status(500).json({ error: 'Failed to update air quality' });
+    console.error('Error updating metrics:', error);
+    res.status(500).json({ error: 'Failed to update metrics' });
   }
 };

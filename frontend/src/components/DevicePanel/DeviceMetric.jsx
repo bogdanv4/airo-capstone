@@ -10,7 +10,7 @@ const METRIC_CONFIG = {
       moderate: 35,
     },
   },
-  CO2: {
+  CO: {
     min: 400,
     max: 2000,
     thresholds: {

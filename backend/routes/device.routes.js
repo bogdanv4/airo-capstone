@@ -11,7 +11,7 @@ import {
   getDeviceById,
   updateDevice,
   deleteDevice,
-  updateDeviceAirQuality,
+  updateDeviceMetrics,
 } from '../controllers/device.controller.js';
 
 const router = express.Router();
@@ -26,7 +26,7 @@ router.get('/device/:id', getDeviceById);
 router.post('/device', createDevice);
 router.post('/gateway', createGateway);
 router.put('/device/:id', updateDevice);
-router.patch('/device/:id/air-quality', updateDeviceAirQuality);
+router.patch('/device/:id/metrics', updateDeviceMetrics);
 router.delete('/device/:id', deleteDevice);
 
 export default router;

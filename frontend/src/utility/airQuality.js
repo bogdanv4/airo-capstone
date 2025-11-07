@@ -34,27 +34,24 @@ export async function fetchAirQualityData(lat, lng, apiKey) {
   }
 }
 
-export async function updateDeviceAirQuality(deviceId, pm25) {
+export async function updateDeviceMetrics(deviceId, metrics) {
   try {
-    const response = await fetch(
-      `${API_BASE_URL}/device/${deviceId}/air-quality`,
-      {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ pm25 }),
+    const response = await fetch(`${API_BASE_URL}/device/${deviceId}/metrics`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
       },
-    );
+      body: JSON.stringify(metrics),
+    });
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.error || 'Failed to update air quality');
+      throw new Error(error.error || 'Failed to update metrics');
     }
 
     return await response.json();
   } catch (error) {
-    console.error('Error updating device air quality:', error);
+    console.error('Error updating device metrics:', error);
     throw error;
   }
 }
