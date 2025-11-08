@@ -12,7 +12,7 @@ import { useBatchGeocode } from 'src/hooks/useBatchGeocode';
 import { fetchUserData } from 'src/redux/actions';
 import {
   getAirQualityColor,
-  updateDeviceAirQuality,
+  updateDeviceMetrics,
 } from 'src/utility/airQuality';
 import CenterButton from 'src/components/CenterButton/CenterButton';
 import MapTiler from './MapTiler';
@@ -91,16 +91,18 @@ export default function Map() {
     }
   }, [selectedDevice]);
 
-  const handleAirQualityUpdate = useCallback(async (deviceId, pm25) => {
-    setDevicePM25Values((prev) => ({
-      ...prev,
-      [deviceId]: pm25,
-    }));
+  const handleMetricsUpdate = useCallback(async (deviceId, metrics) => {
+    if (metrics.pm25 !== undefined) {
+      setDevicePM25Values((prev) => ({
+        ...prev,
+        [deviceId]: metrics.pm25,
+      }));
+    }
 
     try {
-      await updateDeviceAirQuality(deviceId, pm25);
+      await updateDeviceMetrics(deviceId, metrics);
     } catch (error) {
-      console.error('Failed to save PM2.5 to database:', error);
+      console.error('❌ Failed to save metrics to database:', error);
     }
   }, []);
 
@@ -168,7 +170,7 @@ export default function Map() {
                   lat={device.location.lat}
                   lng={device.location.lng}
                   isLoading={geocodingLoading}
-                  onAirQualityUpdate={handleAirQualityUpdate}
+                  onMetricsUpdate={handleMetricsUpdate}
                 />
               </Popup>
             </Marker>

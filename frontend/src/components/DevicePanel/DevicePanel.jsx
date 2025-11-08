@@ -93,7 +93,7 @@ export default function DevicePanel() {
         <DeviceMetric
           metric="CO2"
           normalRange="< 1000"
-          value={selectedDevice.metrics.co2}
+          value={selectedDevice.metrics.co}
         />
         <DeviceMetric
           metric="Temperature"
