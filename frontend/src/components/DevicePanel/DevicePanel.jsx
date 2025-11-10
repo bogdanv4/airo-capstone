@@ -43,8 +43,6 @@ export default function DevicePanel() {
     console.log(range, selectedDevice);
   };
 
-  console.log('Selected Device:', selectedDevice);
-
   return (
     <div className={`${styles.panel} ${isOpen ? styles.openPanel : ''}`}>
       <div className={styles.panel__header}>
