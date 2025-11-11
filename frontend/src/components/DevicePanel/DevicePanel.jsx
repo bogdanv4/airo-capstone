@@ -40,7 +40,6 @@ export default function DevicePanel() {
 
   const handleTimeRangeClick = (range) => {
     setActiveTimeRange(range);
-    console.log(range, selectedDevice);
   };
 
   return (
