@@ -1,4 +1,5 @@
 import { deviceApi, gatewayApi, combinedApi } from 'src/services/api';
+import { API_BASE_URL } from '../constants/const';
 
 export const LOGIN = 'LOGIN';
 export const LOGOUT = 'LOGOUT';
@@ -18,6 +19,7 @@ export const FETCH_USER_DATA_FAILURE = 'FETCH_USER_DATA_FAILURE';
 
 export const ADD_DEVICE_SUCCESS = 'ADD_DEVICE_SUCCESS';
 export const ADD_GATEWAY_SUCCESS = 'ADD_GATEWAY_SUCCESS';
+export const DELETE_DEVICE_SUCCESS = 'DELETE_DEVICE_SUCCESS';
 
 export const SELECT_DEVICE = 'SELECT_DEVICE';
 export const CLEAR_SELECTED_DEVICE = 'CLEAR_SELECTED_DEVICE';
@@ -91,6 +93,33 @@ export const addGateway = (gatewayData) => async (dispatch) => {
     payload: response.gateway,
   });
   return response;
+};
+
+export const deleteDevice = (deviceId) => async (dispatch) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/device/${deviceId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to delete device');
+    }
+
+    dispatch({
+      type: DELETE_DEVICE_SUCCESS,
+      payload: deviceId,
+    });
+
+    dispatch(closeDevicePanel());
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error deleting device:', error);
+    throw error;
+  }
 };
 
 export const updateDeviceAirQualityAction =

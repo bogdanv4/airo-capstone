@@ -12,6 +12,7 @@ import {
   FETCH_USER_DATA_FAILURE,
   ADD_DEVICE_SUCCESS,
   ADD_GATEWAY_SUCCESS,
+  DELETE_DEVICE_SUCCESS,
   SELECT_DEVICE,
   CLEAR_SELECTED_DEVICE,
 } from 'src/redux/actions';
@@ -138,6 +139,17 @@ export const dataReducer = (state = initialDataState, action) => {
       return {
         ...state,
         gateways: [...state.gateways, action.payload],
+      };
+
+    case DELETE_DEVICE_SUCCESS:
+      return {
+        ...state,
+        devices: state.devices.filter(
+          (device) => device._id !== action.payload,
+        ),
+        gateways: state.gateways.filter(
+          (gateway) => gateway._id !== action.payload,
+        ),
       };
 
     default:
