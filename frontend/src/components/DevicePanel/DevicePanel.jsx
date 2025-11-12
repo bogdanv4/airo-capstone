@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styles from './devicePanel.module.css';
-import { closeDevicePanel } from 'src/redux/actions';
+import { closeDevicePanel, deleteDevice } from 'src/redux/actions';
 import { reverseGeocode } from 'src/utility/geocoding';
 import Icon from 'src/components/Icon/Icon';
 import Button from 'src/components/Button/Button';
@@ -12,6 +12,7 @@ export default function DevicePanel() {
   const { isOpen, selectedDevice } = useSelector((state) => state.devicePanel);
   const [activeTimeRange, setActiveTimeRange] = useState('hour');
   const [address, setAddress] = useState('Loading address...');
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     if (selectedDevice?.location?.lat && selectedDevice?.location?.lng) {
@@ -38,9 +39,26 @@ export default function DevicePanel() {
     console.log('Edit device', selectedDevice);
   };
 
+  const handleDeleteDevice = async () => {
+    if (
+      !window.confirm(
+        `Are you sure you want to delete "${selectedDevice.name}"?`,
+      )
+    ) {
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      await dispatch(deleteDevice(selectedDevice._id));
+    } catch (error) {
+      console.error('Failed to delete device:', error);
+      setIsDeleting(false);
+    }
+  };
+
   const handleTimeRangeClick = (range) => {
     setActiveTimeRange(range);
-    console.log(range, selectedDevice);
   };
 
   return (
@@ -106,10 +124,11 @@ export default function DevicePanel() {
 
       <button
         className={styles.deleteDevice}
-        onClick={() => console.log('Remove Device', selectedDevice)}
+        onClick={handleDeleteDevice}
+        disabled={isDeleting}
       >
         <Icon id="deleteIcon" width="36" height="36" />
-        <span>Remove Device</span>
+        <span>{isDeleting ? 'Deleting...' : 'Remove Device'}</span>
       </button>
     </div>
   );
