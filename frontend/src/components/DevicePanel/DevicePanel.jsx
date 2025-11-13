@@ -35,7 +35,7 @@ export default function DevicePanel() {
     dispatch(closeDevicePanel());
   };
 
-  const handleEdit = () => {
+  const handleEditDevice = () => {
     console.log('Edit device', selectedDevice);
   };
 
@@ -66,7 +66,7 @@ export default function DevicePanel() {
       <div className={styles.panel__header}>
         <div className={styles.panel__title}>
           <h2>{selectedDevice.name}</h2>
-          <button onClick={handleEdit}>
+          <button onClick={handleEditDevice}>
             <Icon id="pencilIcon" width="13" height="13" />
           </button>
         </div>
