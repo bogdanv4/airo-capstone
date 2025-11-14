@@ -13,6 +13,7 @@ import {
   ADD_DEVICE_SUCCESS,
   ADD_GATEWAY_SUCCESS,
   DELETE_DEVICE_SUCCESS,
+  UPDATE_DEVICE_SUCCESS,
   SELECT_DEVICE,
   CLEAR_SELECTED_DEVICE,
 } from 'src/redux/actions';
@@ -89,6 +90,17 @@ export const devicePanelReducer = (state = initialDevicePanelState, action) => {
         isOpen: false,
         selectedDevice: null,
       };
+    case UPDATE_DEVICE_SUCCESS:
+      if (
+        state.selectedDevice &&
+        state.selectedDevice._id === action.payload._id
+      ) {
+        return {
+          ...state,
+          selectedDevice: action.payload,
+        };
+      }
+      return state;
     default:
       return state;
   }
@@ -140,6 +152,26 @@ export const dataReducer = (state = initialDataState, action) => {
         ...state,
         gateways: [...state.gateways, action.payload],
       };
+
+    case UPDATE_DEVICE_SUCCESS: {
+      const isGateway = action.payload.type === 'gateway';
+
+      if (isGateway) {
+        return {
+          ...state,
+          gateways: state.gateways.map((gateway) =>
+            gateway._id === action.payload._id ? action.payload : gateway,
+          ),
+        };
+      } else {
+        return {
+          ...state,
+          devices: state.devices.map((device) =>
+            device._id === action.payload._id ? action.payload : device,
+          ),
+        };
+      }
+    }
 
     case DELETE_DEVICE_SUCCESS:
       return {
