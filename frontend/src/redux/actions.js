@@ -20,6 +20,7 @@ export const FETCH_USER_DATA_FAILURE = 'FETCH_USER_DATA_FAILURE';
 export const ADD_DEVICE_SUCCESS = 'ADD_DEVICE_SUCCESS';
 export const ADD_GATEWAY_SUCCESS = 'ADD_GATEWAY_SUCCESS';
 export const DELETE_DEVICE_SUCCESS = 'DELETE_DEVICE_SUCCESS';
+export const UPDATE_DEVICE_SUCCESS = 'UPDATE_DEVICE_SUCCESS';
 
 export const SELECT_DEVICE = 'SELECT_DEVICE';
 export const CLEAR_SELECTED_DEVICE = 'CLEAR_SELECTED_DEVICE';
@@ -93,6 +94,34 @@ export const addGateway = (gatewayData) => async (dispatch) => {
     payload: response.gateway,
   });
   return response;
+};
+
+export const updateDevice = (deviceId, updateData) => async (dispatch) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/device/${deviceId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(updateData),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to update device');
+    }
+
+    const data = await response.json();
+
+    dispatch({
+      type: UPDATE_DEVICE_SUCCESS,
+      payload: data.device,
+    });
+
+    return data;
+  } catch (error) {
+    console.error('Error updating device:', error);
+    throw error;
+  }
 };
 
 export const deleteDevice = (deviceId) => async (dispatch) => {

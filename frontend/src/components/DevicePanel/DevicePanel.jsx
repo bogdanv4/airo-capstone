@@ -1,7 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styles from './devicePanel.module.css';
-import { closeDevicePanel, deleteDevice } from 'src/redux/actions';
+import {
+  closeDevicePanel,
+  deleteDevice,
+  updateDevice,
+} from 'src/redux/actions';
 import { reverseGeocode } from 'src/utility/geocoding';
 import Icon from 'src/components/Icon/Icon';
 import Button from 'src/components/Button/Button';
@@ -13,6 +17,9 @@ export default function DevicePanel() {
   const [activeTimeRange, setActiveTimeRange] = useState('hour');
   const [address, setAddress] = useState('Loading address...');
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedName, setEditedName] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     if (selectedDevice?.location?.lat && selectedDevice?.location?.lng) {
@@ -27,6 +34,11 @@ export default function DevicePanel() {
     }
   }, [selectedDevice]);
 
+  useEffect(() => {
+    setIsEditing(false);
+    setEditedName('');
+  }, [selectedDevice?._id]);
+
   if (!isOpen || !selectedDevice) {
     return null;
   }
@@ -35,8 +47,36 @@ export default function DevicePanel() {
     dispatch(closeDevicePanel());
   };
 
-  const handleEdit = () => {
-    console.log('Edit device', selectedDevice);
+  const handleEditDevice = () => {
+    setIsEditing(true);
+    setEditedName(selectedDevice.name);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setEditedName('');
+  };
+
+  const handleFinishEdit = async () => {
+    if (!editedName.trim()) {
+      alert('Device name cannot be empty');
+      return;
+    }
+
+    if (editedName === selectedDevice.name) {
+      setIsEditing(false);
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      await dispatch(updateDevice(selectedDevice._id, { name: editedName }));
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Failed to update device:', error);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleDeleteDevice = async () => {
@@ -65,10 +105,39 @@ export default function DevicePanel() {
     <div className={`${styles.panel} ${isOpen ? styles.openPanel : ''}`}>
       <div className={styles.panel__header}>
         <div className={styles.panel__title}>
-          <h2>{selectedDevice.name}</h2>
-          <button onClick={handleEdit}>
-            <Icon id="pencilIcon" width="13" height="13" />
-          </button>
+          {isEditing ? (
+            <div className={styles.panel__editMode}>
+              <input
+                type="text"
+                value={editedName}
+                onChange={(e) => setEditedName(e.target.value)}
+                className={styles.panel__input}
+                autoFocus
+                disabled={isSaving}
+              />
+              <button
+                onClick={handleFinishEdit}
+                className={styles.panel__finishBtn}
+                disabled={isSaving}
+              >
+                <Icon id="checkIcon" width="14" height="14" />
+              </button>
+              <button
+                onClick={handleCancelEdit}
+                className={styles.panel__cancelBtn}
+                disabled={isSaving}
+              >
+                <Icon id="xIcon" width="13" height="13" />
+              </button>
+            </div>
+          ) : (
+            <>
+              <h2>{selectedDevice.name}</h2>
+              <button onClick={handleEditDevice}>
+                <Icon id="pencilIcon" width="13" height="13" />
+              </button>
+            </>
+          )}
         </div>
         <button onClick={handleClose} className={styles.panel__closeBtn}>
           <Icon id="xIcon" width="13" height="13" />
