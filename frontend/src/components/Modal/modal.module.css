@@ -99,7 +99,7 @@ label {
   position: relative;
 
   textarea {
-    height: 16rem;
+    height: 11rem;
     resize: none;
   }
 
@@ -139,7 +139,18 @@ select.modal__input {
 }
 
 .modal__location {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
   .modal__input {
     width: 37.5rem;
+  }
+
+  button {
+    svg {
+      position: relative;
+      left: 1rem;
+      top: 1rem;
+    }
   }
 }
