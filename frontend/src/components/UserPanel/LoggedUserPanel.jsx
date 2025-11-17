@@ -6,6 +6,7 @@ import {
   closeUserPanel,
   fetchUserData,
   openDevicePanel,
+  selectDevice,
 } from 'src/redux/actions';
 import { useAuth } from 'src/hooks/useAuth';
 import { useBatchGeocode } from 'src/hooks/useBatchGeocode';
@@ -44,6 +45,7 @@ export default function LoggedUserPanel() {
         : getAddress(device.location.lat, device.location.lng),
     };
     dispatch(openDevicePanel(deviceWithAddress));
+    dispatch(selectDevice(device));
   };
 
   return (
