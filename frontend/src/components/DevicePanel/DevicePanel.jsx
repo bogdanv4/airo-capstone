@@ -20,6 +20,18 @@ export default function DevicePanel() {
   const [isEditing, setIsEditing] = useState(false);
   const [editedName, setEditedName] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoadingData, setIsLoadingData] = useState(false);
+
+  useEffect(() => {
+    if (isOpen && selectedDevice?._id) {
+      setIsLoadingData(true);
+      const timer = setTimeout(() => {
+        setIsLoadingData(false);
+      }, 2500);
+
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen, selectedDevice?._id]);
 
   useEffect(() => {
     if (selectedDevice?.location?.lat && selectedDevice?.location?.lng) {
@@ -149,56 +161,64 @@ export default function DevicePanel() {
         <p>{address}</p>
       </div>
 
-      <div className={styles.panel__actions}>
-        <Button
-          onClick={() => handleTimeRangeClick('hour')}
-          className={activeTimeRange === 'hour' ? styles.active : ''}
-        >
-          Hour
-        </Button>
-        <Button
-          onClick={() => handleTimeRangeClick('today')}
-          className={activeTimeRange === 'today' ? styles.active : ''}
-        >
-          Today
-        </Button>
-        <Button
-          onClick={() => handleTimeRangeClick('week')}
-          className={activeTimeRange === 'week' ? styles.active : ''}
-        >
-          Week
-        </Button>
-      </div>
-      <div className={styles.metrics}>
-        <DeviceMetric
-          metric="PM2.5"
-          normalRange="0-12"
-          value={selectedDevice.metrics.pm2_5}
-        />
-        <DeviceMetric
-          metric="CO2"
-          normalRange="< 1000"
-          value={selectedDevice.metrics.co}
-        />
-        <DeviceMetric
-          metric="Temperature"
-          value={selectedDevice.metrics.temp}
-        />
-        <DeviceMetric
-          metric="Humidity"
-          normalRange="30-60%"
-          value={selectedDevice.metrics.humidity}
-        />
-      </div>
+      {isLoadingData ? (
+        <div className={styles.loadingState}>
+          <p>Loading latest data...</p>
+        </div>
+      ) : (
+        <>
+          <div className={styles.panel__actions}>
+            <Button
+              onClick={() => handleTimeRangeClick('hour')}
+              className={activeTimeRange === 'hour' ? styles.active : ''}
+            >
+              Hour
+            </Button>
+            <Button
+              onClick={() => handleTimeRangeClick('today')}
+              className={activeTimeRange === 'today' ? styles.active : ''}
+            >
+              Today
+            </Button>
+            <Button
+              onClick={() => handleTimeRangeClick('week')}
+              className={activeTimeRange === 'week' ? styles.active : ''}
+            >
+              Week
+            </Button>
+          </div>
+          <div className={styles.metrics}>
+            <DeviceMetric
+              metric="PM2.5"
+              normalRange="0-12"
+              value={selectedDevice.metrics.pm2_5}
+            />
+            <DeviceMetric
+              metric="CO2"
+              normalRange="< 1000"
+              value={selectedDevice.metrics.co}
+            />
+            <DeviceMetric
+              metric="Temperature"
+              value={selectedDevice.metrics.temp}
+            />
+            <DeviceMetric
+              metric="Humidity"
+              normalRange="30-60%"
+              value={selectedDevice.metrics.humidity}
+            />
+          </div>
 
-      <button
-        className={styles.deleteDevice}
-        onClick={handleDeleteDevice}
-        disabled={isDeleting}
-      >
-        <Icon id="deleteIcon" width="36" height="36" />
-        <span>{isDeleting ? 'Deleting...' : 'Remove Device'}</span>
-      </button>
+          <button
+            className={styles.deleteDevice}
+            onClick={handleDeleteDevice}
+            disabled={isDeleting}
+          >
+            <Icon id="deleteIcon" width="36" height="36" />
+            <span>{isDeleting ? 'Deleting...' : 'Remove Device'}</span>
+          </button>
+        </>
+      )}
     </div>
   );
 }
