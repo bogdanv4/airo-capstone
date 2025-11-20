@@ -12,3 +12,5 @@ export const OPEN_WEATHER_API_BASE_URL =
 
 export const OPEN_WEATHER_WEATHER_API_BASE_URL =
   'https://api.openweathermap.org/data/2.5/weather';
+
+export const PRIVACY_POLICY_URL = 'https://gdpr-info.eu/';
