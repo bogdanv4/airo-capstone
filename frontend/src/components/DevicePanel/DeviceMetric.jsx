@@ -10,7 +10,6 @@ export default function DeviceMetric({ metric, normalRange, value = 0 }) {
   const status = getMetricStatus(metric, value);
   const normalizedValue = normalizeValue(metric, value);
   const gradient = GRADIENTS[status];
-
   const settings = {
     width: 100,
     height: 90,
