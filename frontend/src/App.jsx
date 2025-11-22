@@ -6,6 +6,7 @@ import UserPanel from 'src/components/UserPanel/UserPanel';
 import DevicePanel from 'src/components/DevicePanel/DevicePanel';
 import Map from 'src/components/Map/Map';
 import Modal from 'src/components/Modal/Modal';
+import Onboarding from './components/Onboarding/Onboarding';
 
 function App() {
   const { loading } = useAuth();
@@ -13,11 +14,12 @@ function App() {
 
   return (
     <>
-      <Header loading={loading} />
+      {/* <Header loading={loading} />
       <UserPanel loading={loading} />
       <DevicePanel />
       <Map />
-      <Modal />
+      <Modal /> */}
+      <Onboarding />
     </>
   );
 }

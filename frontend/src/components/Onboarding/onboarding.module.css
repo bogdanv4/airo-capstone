@@ -1,0 +1,56 @@
+.onboarding {
+  height: 64rem;
+  width: 64rem;
+  background-color: var(--color-background-dark);
+  position: relative;
+  left: 50%;
+  transform: translate(-50%);
+  top: 60px;
+}
+
+.close {
+  position: absolute;
+  top: 1.8rem;
+  right: 1.8rem;
+}
+
+.onboarding__header {
+  padding: 4.5rem 5rem 6.4rem 5rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.onboarding__content {
+  padding: 0 12rem;
+  position: relative;
+
+  h1 {
+    text-align: center;
+    font-size: 2.58rem;
+    font-weight: 700;
+    line-height: 2rem;
+    color: #f7f7f7;
+  }
+
+  p {
+    margin-top: 3.2rem;
+    margin-bottom: 4.5rem;
+    font-size: 1.5rem;
+    line-height: 2.4rem;
+    font-weight: 400;
+    color: #fcfcfe;
+  }
+}
+
+.onboarding__button {
+  color: white;
+  font-size: 1.6rem;
+  font-weight: 600;
+  line-height: 2.4rem;
+  vertical-align: middle;
+  padding: 1rem 0;
+  width: 25rem;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
