@@ -7,6 +7,8 @@ import {
   OPEN_USER_PANEL,
   OPEN_DEVICE_PANEL,
   CLOSE_DEVICE_PANEL,
+  OPEN_ONBOARDING,
+  CLOSE_ONBOARDING,
   FETCH_USER_DATA_REQUEST,
   FETCH_USER_DATA_SUCCESS,
   FETCH_USER_DATA_FAILURE,
@@ -32,6 +34,10 @@ const initialDevicePanelState = {
 };
 
 const initialModalState = { isOpen: false };
+
+const initialOnboardingState = {
+  isOpen: false,
+};
 
 const initialDataState = {
   devices: [],
@@ -111,6 +117,17 @@ export const modalReducer = (state = initialModalState, action) => {
     case OPEN_MODAL:
       return { ...state, isOpen: true };
     case CLOSE_MODAL:
+      return { ...state, isOpen: false };
+    default:
+      return state;
+  }
+};
+
+export const onboardingReducer = (state = initialOnboardingState, action) => {
+  switch (action.type) {
+    case OPEN_ONBOARDING:
+      return { ...state, isOpen: true };
+    case CLOSE_ONBOARDING:
       return { ...state, isOpen: false };
     default:
       return state;
