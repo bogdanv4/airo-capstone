@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from 'react-redux';
 import styles from './userPanel.module.css';
-import { closeUserPanel } from 'src/redux/actions';
+import { closeUserPanel, openOnboarding } from 'src/redux/actions';
 import { useAuth } from 'src/hooks/useAuth';
 import Icon from 'src/components/Icon/Icon';
 import LoginButton from 'src/components/LoginButton/LoginButton';
@@ -13,6 +13,10 @@ export default function LoginPanel() {
 
   function handleUserPanel() {
     dispatch(closeUserPanel());
+  }
+
+  function handleAboutClick() {
+    dispatch(openOnboarding());
   }
 
   return (
@@ -39,7 +43,10 @@ export default function LoginPanel() {
           {loading ? 'Signing in...' : 'Sign In'}
         </LoginButton>
       </div>
-      <button className={styles.panel__bottom_button}>
+      <button
+        className={styles.panel__bottom_button}
+        onClick={handleAboutClick}
+      >
         About this application &rarr;
       </button>
     </div>

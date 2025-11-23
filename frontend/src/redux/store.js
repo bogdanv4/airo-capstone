@@ -4,6 +4,7 @@ import {
   userPanelReducer,
   devicePanelReducer,
   modalReducer,
+  onboardingReducer,
   dataReducer,
   mapReducer,
 } from 'src/redux/reducers';
@@ -20,6 +21,7 @@ const rootReducer = combineReducers({
   userPanel: userPanelReducer,
   devicePanel: devicePanelReducer,
   modal: modalReducer,
+  onboarding: onboardingReducer,
   data: dataReducer,
   map: mapReducer,
 });

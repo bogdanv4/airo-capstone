@@ -1,5 +1,5 @@
 import { deviceApi, gatewayApi, combinedApi } from 'src/services/api';
-import { API_BASE_URL } from '../constants/const';
+import { API_BASE_URL } from 'src/constants/const';
 
 export const LOGIN = 'LOGIN';
 export const LOGOUT = 'LOGOUT';
@@ -12,6 +12,9 @@ export const CLOSE_DEVICE_PANEL = 'CLOSE_DEVICE_PANEL';
 
 export const OPEN_MODAL = 'OPEN_MODAL';
 export const CLOSE_MODAL = 'CLOSE_MODAL';
+
+export const OPEN_ONBOARDING = 'OPEN_ONBOARDING';
+export const CLOSE_ONBOARDING = 'CLOSE_ONBOARDING';
 
 export const FETCH_USER_DATA_REQUEST = 'FETCH_USER_DATA_REQUEST';
 export const FETCH_USER_DATA_SUCCESS = 'FETCH_USER_DATA_SUCCESS';
@@ -48,6 +51,14 @@ export const closeDevicePanel = () => ({
 
 export const openModal = () => ({ type: OPEN_MODAL });
 export const closeModal = () => ({ type: CLOSE_MODAL });
+
+export const openOnboarding = () => ({
+  type: OPEN_ONBOARDING,
+});
+
+export const closeOnboarding = () => ({
+  type: CLOSE_ONBOARDING,
+});
 
 export const selectDevice = (device) => ({
   type: SELECT_DEVICE,

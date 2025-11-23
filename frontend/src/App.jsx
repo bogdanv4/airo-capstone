@@ -14,11 +14,11 @@ function App() {
 
   return (
     <>
-      {/* <Header loading={loading} />
+      <Header loading={loading} />
       <UserPanel loading={loading} />
       <DevicePanel />
       <Map />
-      <Modal /> */}
+      <Modal />
       <Onboarding />
     </>
   );
