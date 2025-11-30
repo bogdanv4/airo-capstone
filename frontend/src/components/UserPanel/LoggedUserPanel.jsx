@@ -9,6 +9,7 @@ import {
   selectDevice,
 } from 'src/redux/actions';
 import { useAuth } from 'src/hooks/useAuth';
+import { useProfileImage } from 'src/hooks/useProfileImage';
 import { useBatchGeocode } from 'src/hooks/useBatchGeocode';
 import { PRIVACY_POLICY_URL } from 'src/constants/const';
 import DeviceCard from 'src/components/DeviceCard/DeviceCard';
@@ -22,6 +23,9 @@ export default function LoggedUserPanel() {
     (state) => state.data,
   );
   const { logout } = useAuth();
+  const { imageError, handleImageError, handleImageLoad } = useProfileImage(
+    user?.picture,
+  );
 
   useEffect(() => {
     if (user?.sub) {
@@ -56,7 +60,15 @@ export default function LoggedUserPanel() {
   return (
     <div className={`${styles.panel} ${userPanelOpen ? styles.openPanel : ''}`}>
       <div className={styles.panel__user}>
-        <img src={user.picture} alt="Profile" key={user.picture} />
+        {user?.picture && !imageError && (
+          <img
+            src={user.picture}
+            alt="Profile"
+            key={user.picture}
+            onError={handleImageError}
+            onLoad={handleImageLoad}
+          />
+        )}
         <div className={styles.panel__text}>
           <h2 className={styles.panel__userName}>{user.name}</h2>
           <h3 className={styles.panel__userMail}>{user.email}</h3>

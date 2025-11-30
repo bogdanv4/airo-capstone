@@ -56,8 +56,37 @@ export const verifyUser = async (req, res) => {
     const userInfo = await userInfoResponse.json();
 
     if (userInfo.picture) {
-      const baseUrl = userInfo.picture.split('=')[0];
-      userInfo.picture = `${baseUrl}=s400-c`;
+      try {
+        const pictureUrl = userInfo.picture;
+        const sizeParamRegex = /=s\d+(-c)?$/;
+
+        if (sizeParamRegex.test(pictureUrl)) {
+          userInfo.picture = pictureUrl.replace(sizeParamRegex, '=s400-c');
+        } else {
+          userInfo.picture = `${pictureUrl}=s400-c`;
+        }
+
+        try {
+          new URL(userInfo.picture);
+        } catch (urlError) {
+          console.warn(
+            'Invalid picture URL after modification, using original:',
+            urlError,
+          );
+          userInfo.picture = pictureUrl;
+        }
+      } catch (error) {
+        console.warn('Error modifying picture URL, using original:', error);
+      }
+    } else {
+      console.warn('User info missing picture property:', {
+        sub: userInfo.sub,
+        email: userInfo.email,
+      });
+    }
+
+    if (!userInfo.picture) {
+      userInfo.picture = null;
     }
 
     res.json(userInfo);
