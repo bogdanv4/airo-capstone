@@ -39,6 +39,18 @@ export function useAuth() {
         }
 
         const userInfo = await response.json();
+
+        if (!userInfo || typeof userInfo !== 'object') {
+          throw new Error('Invalid user info received');
+        }
+
+        if (!userInfo.picture) {
+          console.warn('User info missing picture property:', {
+            sub: userInfo.sub,
+            email: userInfo.email,
+          });
+        }
+
         dispatch(loginAction(userInfo, token));
         setItem(token);
       } catch (error) {
